@@ -1,6 +1,7 @@
 import base64
 import json
 import asyncio
+import httpx
 from django.test import TestCase, AsyncClient
 from django.db import transaction
 from django.contrib.auth import get_user_model
@@ -61,8 +62,14 @@ class CollectionTestCase(TestCase):
             "Authorization": f"{request_key}",
             "Content-Type": "application/json",
         }
-        response = await self.client.post("/api/collections/create", collection_data, format="json",
-                                          **headers)
+        # response = await self.client.post("/api/collections/create", data = json.dumps(collection_data),
+        #                                   **headers)
+        async with httpx.AsyncClient(app=self._wrapped_test_server(), base_url="http://localhost:8000") as client:
+            response = await client.post(
+                "/api/collections/create",
+                content=json.dumps(collection_data),
+                headers=headers,
+            )
 
         print(f"Response: {response} / {response.content}")
 

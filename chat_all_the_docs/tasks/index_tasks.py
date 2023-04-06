@@ -10,6 +10,21 @@ from llama_index import GPTSimpleVectorIndex, SimpleDirectoryReader
 # TODO - make sure this is properly configured to be discovered by celery
 @shared_task
 def create_index(collection_id):
+    """
+    Celery task to create a GPTSimpleVectorIndex for a given Collection object.
+
+    This task takes the ID of a Collection object, retrieves it from the
+    database along with its related documents, and saves the document files
+    to a temporary directory. Then, it creates a GPTSimpleVectorIndex using
+    the provided code and saves the index to the Comparison.model FileField.
+
+    Args:
+        collection_id (int): The ID of the Collection object for which the
+                             index should be created.
+
+    Returns:
+        bool: True if the index is created and saved successfully, False otherwise.
+    """
     try:
         # Get the Collection object with related documents
         collection = Collection.objects.select_related("documents").get(id=collection_id)
