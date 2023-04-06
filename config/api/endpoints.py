@@ -1,8 +1,12 @@
+import base64
 from ninja import Router, File, NinjaAPI
 from django.conf import settings
+from django.db import connection
+from django.core.files.base import ContentFile
 from .auth.api_key import NinjaApiKeyAuth
-from chat_all_the_docs.indexes.models import Collection
-from .ninja_types import CollectionIn, CollectionOut
+from asgiref.sync import sync_to_async
+from .ninja_types import CollectionIn, CollectionModelSchema
+from chat_all_the_docs.indexes.models import Document, Collection
 
 collections_router = Router()
 
@@ -29,21 +33,30 @@ def check_heartbeat(request):
     return True
 
 @collections_router.post("/create")
-async def create_collection(request, collection: CollectionIn):
-    collection_instance = Collection(
-        title=collection.title,
-        description=collection.description,
-        author_id=collection.author,
-        status=collection.status,
-        model=collection.model
-    )
-    await collection_instance.sace()
+async def create_collection(request, collection_data: CollectionIn):
 
-    # Save the documents
-    for document_base64 in collection_in.documents:
+    collection_instance = Collection(
+        title=collection_data.title,
+        description=collection_data.description,
+        author_id=collection_data.author,
+        status=collection_data.status,
+    )
+
+    await sync_to_async(collection_instance.save)()
+
+    for document_base64 in collection_data.documents:
         doc_data = base64.b64decode(document_base64)
         doc_file = ContentFile(doc_data, "document.txt")
-        document = Document(collection=collection, file=doc_file, uploaded_by=request.context.user)
-        document.save()
+        document = Document(collection=collection_instance, file=doc_file)
+        await sync_to_async(document.save)()
 
-    return CollectionOut.from_orm(collection_instance)
+    # result = await sync_to_async(CollectionModelSchema.from_orm)(collection_instance)
+    return await sync_to_async(CollectionModelSchema)(
+        id=collection_instance.id,
+        title=collection_instance.title,
+        description=collection_instance.description,
+        author=collection_instance.author_id,
+        status=collection_instance.status,
+        created=collection_instance.created.isoformat(),
+        modified=collection_instance.modified.isoformat(),
+    )

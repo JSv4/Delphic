@@ -15,7 +15,6 @@ class Document(models.Model):
     collection = models.ForeignKey('Collection', related_name='documents', on_delete=models.CASCADE)
     file = models.FileField(upload_to='documents/')
     description = models.TextField()
-    uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 

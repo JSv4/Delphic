@@ -2,7 +2,7 @@ import base64
 import json
 import asyncio
 import httpx
-from django.test import TestCase, AsyncClient
+from django.test import TransactionTestCase, AsyncClient
 from django.db import transaction
 from django.contrib.auth import get_user_model
 from asgiref.sync import async_to_sync, sync_to_async
@@ -10,11 +10,12 @@ from rest_framework_api_key.models import APIKey
 from ninja.testing import TestClient
 from config.api.endpoints import collections_router
 from concurrent.futures import ThreadPoolExecutor
+from config import asgi
 from chat_all_the_docs.indexes.models import Collection, Document
 
 User = get_user_model()
 
-class CollectionTestCase(TestCase):
+class CollectionTestCase(TransactionTestCase):
 
     # async def async_setup_method(self):
         # Perform your asynchronous setup tasks here
@@ -64,7 +65,7 @@ class CollectionTestCase(TestCase):
         }
         # response = await self.client.post("/api/collections/create", data = json.dumps(collection_data),
         #                                   **headers)
-        async with httpx.AsyncClient(app=self._wrapped_test_server(), base_url="http://localhost:8000") as client:
+        async with httpx.AsyncClient(app=asgi.application, base_url="http://localhost:8000") as client:
             response = await client.post(
                 "/api/collections/create",
                 content=json.dumps(collection_data),
@@ -82,12 +83,12 @@ class CollectionTestCase(TestCase):
         self.assertEqual(response_data["status"], collection_data["status"])
 
         # Check if the documents are saved correctly
-        collection_instance = await Collection.objects.get(id=response_data["id"])
-        self.assertEqual(collection_instance.documents.count(), 1)
+        collection_instance = await Collection.objects.aget(id=response_data["id"])
+        collection_doc_count = await sync_to_async(collection_instance.documents.count)()
+        self.assertEqual(collection_doc_count, 1)
 
         # Clean up test file
-        collection_instance.model.delete()
-        for document in collection_instance.documents.all():
-            document.file.delete()
-        collection_instance.delete()
+        # for document in collection_instance.documents.all():
+        #     document.file.delete()
+        # collection_instance.delete()
 

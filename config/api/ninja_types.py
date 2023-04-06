@@ -14,7 +14,7 @@ class CollectionIn(Schema):
     author: int
     status: CollectionStatusEnum
 
-class CollectionOut(Schema):
+class CollectionModelSchema(Schema):
     id: int
     title: str
     description: str

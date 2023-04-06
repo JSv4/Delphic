@@ -39,3 +39,5 @@ pytest-django==4.5.2  # https://github.com/pytest-dev/pytest-django
 # Async Testing
 # ------------------------------------------------------------------------------
 httpx
+pytest_httpx
+pytest-asyncio
