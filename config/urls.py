@@ -5,13 +5,8 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
-from ninja import NinjaAPI
+from config.api.endpoints import api
 
-
-from .api.endpoints import router as ninja_router
-
-api = NinjaAPI()
-api.add_router("/collections", collection_router)
 
 urlpatterns = [
     path("api/", api.urls),

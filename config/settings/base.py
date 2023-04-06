@@ -6,6 +6,7 @@ from pathlib import Path
 import environ
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
+
 # chat_all_the_docs/
 APPS_DIR = BASE_DIR / "chat_all_the_docs"
 env = environ.Env()
@@ -17,6 +18,7 @@ if READ_DOT_ENV_FILE:
 
 # GENERAL
 # ------------------------------------------------------------------------------
+USE_AWS = env.bool("USE_AWS", False)
 # https://docs.djangoproject.com/en/dev/ref/settings/#debug
 DEBUG = env.bool("DJANGO_DEBUG", False)
 # Local time zone. Choices are
@@ -39,7 +41,6 @@ LOCALE_PATHS = [str(BASE_DIR / "locale")]
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {"default": env.db("DATABASE_URL")}
-DATABASES["default"]["ATOMIC_REQUESTS"] = True
 # https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-DEFAULT_AUTO_FIELD
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -64,17 +65,15 @@ DJANGO_APPS = [
     "django.forms",
 ]
 THIRD_PARTY_APPS = [
-    "crispy_forms",
-    "crispy_bootstrap5",
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
+    "ninja",
     "django_celery_beat",
+    "rest_framework",
+    "rest_framework_api_key",
 ]
 
 LOCAL_APPS = [
+    "chat_all_the_docs.indexes",
     "chat_all_the_docs.users",
-    # Your stuff: custom apps go here
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -132,12 +131,11 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+
 # STATIC
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#static-root
 STATIC_ROOT = str(BASE_DIR / "staticfiles")
-# https://docs.djangoproject.com/en/dev/ref/settings/#static-url
-STATIC_URL = "/static/"
 # https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
 STATICFILES_DIRS = [str(APPS_DIR / "static")]
 # https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#staticfiles-finders
@@ -146,12 +144,68 @@ STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 ]
 
-# MEDIA
-# ------------------------------------------------------------------------------
-# https://docs.djangoproject.com/en/dev/ref/settings/#media-root
-MEDIA_ROOT = str(APPS_DIR / "media")
-# https://docs.djangoproject.com/en/dev/ref/settings/#media-url
-MEDIA_URL = "/media/"
+if not USE_AWS:
+    # STATIC
+    # ------------------------
+    STATIC_URL = "/static/"
+
+    # MEDIA
+    # ------------------------------------------------------------------------------
+    # https://docs.djangoproject.com/en/dev/ref/settings/#media-root
+    print(f"APPS DIR: {APPS_DIR}")
+    MEDIA_ROOT = str(APPS_DIR / "media")
+    # https://docs.djangoproject.com/en/dev/ref/settings/#media-url
+    MEDIA_URL = "/media/"
+
+else:
+    # STORAGES
+    # ------------------------------------------------------------------------------
+    # https://django-storages.readthedocs.io/en/latest/#installation
+    INSTALLED_APPS += ["storages"]  # noqa F405
+    # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
+    AWS_ACCESS_KEY_ID = env("DJANGO_AWS_ACCESS_KEY_ID")
+    # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
+    AWS_SECRET_ACCESS_KEY = env("DJANGO_AWS_SECRET_ACCESS_KEY")
+    # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
+    AWS_STORAGE_BUCKET_NAME = env("DJANGO_AWS_STORAGE_BUCKET_NAME")
+    # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
+    AWS_QUERYSTRING_AUTH = True
+    # DO NOT change these unless you know what you're doing.
+    _AWS_EXPIRY = 60 * 60 * 24 * 7
+    # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
+    AWS_S3_OBJECT_PARAMETERS = {
+        "CacheControl": f"max-age={_AWS_EXPIRY}, s-maxage={_AWS_EXPIRY}, must-revalidate"
+    }
+    # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
+    AWS_S3_REGION_NAME = env("DJANGO_AWS_S3_REGION_NAME", default=None)
+    # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#cloudfront
+    AWS_S3_CUSTOM_DOMAIN = env("DJANGO_AWS_S3_CUSTOM_DOMAIN", default=None)
+    aws_s3_domain = (
+        AWS_S3_CUSTOM_DOMAIN or f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
+    )
+
+    # Copied values from botos3 for OpenEdgar Crawlers rather than rewriting the crawlers (for now). Lazy :-)
+    S3_ACCESS_KEY = AWS_ACCESS_KEY_ID
+    S3_SECRET_KEY = AWS_SECRET_ACCESS_KEY
+    S3_BUCKET = AWS_STORAGE_BUCKET_NAME
+    S3_PREFIX = env("S3_PREFIX", default="documents")
+    S3_COMPRESSION_LEVEL = int(env("S3_COMPRESSION_LEVEL", default=6))
+
+    # STATIC
+    # ------------------------
+    STATICFILES_STORAGE = "chat_all_the_docs.utils.storages.StaticRootS3Boto3Storage"
+    STATIC_URL = f"https://{aws_s3_domain}/static/"
+    # MEDIA
+    # ------------------------------------------------------------------------------
+    DEFAULT_FILE_STORAGE = "chat_all_the_docs.utils.storages.MediaRootS3Boto3Storage"
+    MEDIA_URL = f"https://{aws_s3_domain}/media/"
+    MEDIA_ROOT = str(APPS_DIR / "media")
+
+    # Collectfast (Not sure why this is part of cookiecutter as it's not maintained)
+    # ------------------------------------------------------------------------------
+    # https://github.com/antonagestam/collectfast#installation
+    INSTALLED_APPS += ["collectfast"]  # noqa F405
+    COLLECTFAST_STRATEGY = "collectfast.strategies.boto3.Boto3Strategy"
 
 # TEMPLATES
 # ------------------------------------------------------------------------------
@@ -175,7 +229,6 @@ TEMPLATES = [
                 "django.template.context_processors.static",
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
-                "chat_all_the_docs.users.context_processors.allauth_settings",
             ],
         },
     }
@@ -298,5 +351,7 @@ SOCIALACCOUNT_ADAPTER = "chat_all_the_docs.users.adapters.SocialAccountAdapter"
 SOCIALACCOUNT_FORMS = {"signup": "chat_all_the_docs.users.forms.UserSocialSignupForm"}
 
 
-# Your stuff...
+# API Configuration
 # ------------------------------------------------------------------------------
+# If OPEN_ACCESS_MODE is True, no API_KEY is checked (for use in local deploys or on VPC)
+OPEN_ACCESS_MODE = env.bool("OPEN_ACCESS_MODE", False)

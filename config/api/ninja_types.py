@@ -1,6 +1,5 @@
 from typing import List
-from ninja import Router, Schema
-from django.core.files import File
+from ninja import Router, Schema, UploadedFile
 
 class CollectionStatusEnum(str):
     COMPLETE = "COMPLETE"
@@ -11,7 +10,7 @@ class CollectionStatusEnum(str):
 class CollectionIn(Schema):
     title: str
     description: str
-    documents: List[File]
+    documents: List[str]
     author: int
     status: CollectionStatusEnum
 
