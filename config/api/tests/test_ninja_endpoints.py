@@ -2,6 +2,7 @@ import base64
 import json
 import asyncio
 import httpx
+import logging
 from django.test import TransactionTestCase, AsyncClient
 from django.db import transaction
 from django.contrib.auth import get_user_model
@@ -14,6 +15,12 @@ from config import asgi
 from chat_all_the_docs.indexes.models import Collection, Document
 
 User = get_user_model()
+
+logging.basicConfig(
+    format="%(levelname)s [%(asctime)s] %(name)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    level=logging.DEBUG
+)
 
 class CollectionTestCase(TransactionTestCase):
 
@@ -42,18 +49,18 @@ class CollectionTestCase(TransactionTestCase):
 
     async def test_create_collection(self):
 
+
+
         request_key = await self.get_request_key()
 
         print(f"Request key: {request_key}")
 
         file_content = b"test content"
-        file_content_base64 = base64.b64encode(file_content).decode("utf-8")
 
         # Test data
         collection_data = {
             "title": "Test Collection",
             "description": "A test collection",
-            "documents": [file_content_base64],
             "author": self.user.id,
             "status": "COMPLETE",
         }
@@ -61,16 +68,22 @@ class CollectionTestCase(TransactionTestCase):
         # Send the request
         headers = {
             "Authorization": f"{request_key}",
-            "Content-Type": "application/json",
         }
+        files = [
+            ('files', ('document1.txt', file_content, 'text/plain')),
+            ('files', ('document2.txt', file_content, 'text/plain')),
+        ]
         # response = await self.client.post("/api/collections/create", data = json.dumps(collection_data),
         #                                   **headers)
         async with httpx.AsyncClient(app=asgi.application, base_url="http://localhost:8000") as client:
             response = await client.post(
                 "/api/collections/create",
-                content=json.dumps(collection_data),
+                data=collection_data,
+                files=files,
                 headers=headers,
             )
+            print(response.text)
+
 
         print(f"Response: {response} / {response.content}")
 
@@ -85,10 +98,9 @@ class CollectionTestCase(TransactionTestCase):
         # Check if the documents are saved correctly
         collection_instance = await Collection.objects.aget(id=response_data["id"])
         collection_doc_count = await sync_to_async(collection_instance.documents.count)()
-        self.assertEqual(collection_doc_count, 1)
+        self.assertEqual(collection_doc_count, 2)
 
-        # Clean up test file
-        # for document in collection_instance.documents.all():
-        #     document.file.delete()
-        # collection_instance.delete()
+        async for document in collection_instance.documents.all():
+            await sync_to_async(document.file.delete)()
+        await sync_to_async(collection_instance.delete)()
 

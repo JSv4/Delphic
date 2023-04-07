@@ -1,5 +1,7 @@
 import base64
-from ninja import Router, File, NinjaAPI
+from typing import List
+from ninja import Router, File, NinjaAPI, Form
+from ninja.files import UploadedFile
 from django.conf import settings
 from django.db import connection
 from django.core.files.base import ContentFile
@@ -33,7 +35,7 @@ def check_heartbeat(request):
     return True
 
 @collections_router.post("/create")
-async def create_collection(request, collection_data: CollectionIn):
+async def create_collection(request, collection_data: CollectionIn = Form(...), files: List[UploadedFile] = File(...)):
 
     collection_instance = Collection(
         title=collection_data.title,
@@ -44,9 +46,10 @@ async def create_collection(request, collection_data: CollectionIn):
 
     await sync_to_async(collection_instance.save)()
 
-    for document_base64 in collection_data.documents:
-        doc_data = base64.b64decode(document_base64)
-        doc_file = ContentFile(doc_data, "document.txt")
+
+    for uploaded_file in files:
+        doc_data = uploaded_file.file.read()
+        doc_file = ContentFile(doc_data, uploaded_file.name)
         document = Document(collection=collection_instance, file=doc_file)
         await sync_to_async(document.save)()
 

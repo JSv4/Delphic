@@ -10,7 +10,6 @@ class CollectionStatusEnum(str):
 class CollectionIn(Schema):
     title: str
     description: str
-    documents: List[str]
     author: int
     status: CollectionStatusEnum
 
