@@ -1,5 +1,6 @@
-from typing import List
+from typing import List, Optional
 from ninja import Router, Schema, UploadedFile
+
 
 class CollectionStatusEnum(str):
     COMPLETE = "COMPLETE"
@@ -7,17 +8,26 @@ class CollectionStatusEnum(str):
     QUEUED = "QUEUED"
     ERROR = "ERROR"
 
+
 class CollectionIn(Schema):
     title: str
-    description: str
-    author: int
-    status: CollectionStatusEnum
+    description: Optional[str]
+    status: CollectionStatusEnum = CollectionStatusEnum.QUEUED
+
 
 class CollectionModelSchema(Schema):
     id: int
     title: str
     description: str
-    author: int
     status: CollectionStatusEnum
     created: str
     modified: str
+
+
+class CollectionQueryInput(Schema):
+    collection_id: int
+    query_str: str
+
+
+class CollectionQueryOutput(Schema):
+    response: str

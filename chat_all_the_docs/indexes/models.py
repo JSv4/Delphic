@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from rest_framework_api_key.models import APIKey
 
 User = get_user_model()
 
@@ -19,9 +20,12 @@ class Document(models.Model):
     modified = models.DateTimeField(auto_now=True)
 
 class Collection(models.Model):
+    # Want to tie the jobs to the source api key
+    api_key = models.ForeignKey(
+        APIKey, blank=True, null=True, on_delete=models.CASCADE
+    )
     title = models.CharField(max_length=255)
     description = models.TextField()
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
     status = models.CharField(max_length=20, choices=CollectionStatus.choices)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)

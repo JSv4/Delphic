@@ -65,6 +65,7 @@ DJANGO_APPS = [
     "django.forms",
 ]
 THIRD_PARTY_APPS = [
+    "channels",
     "ninja",
     "django_celery_beat",
     "rest_framework",
@@ -88,7 +89,6 @@ MIGRATION_MODULES = {"sites": "chat_all_the_docs.contrib.sites.migrations"}
 # https://docs.djangoproject.com/en/dev/ref/settings/#authentication-backends
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
-    "allauth.account.auth_backends.AuthenticationBackend",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-user-model
 AUTH_USER_MODEL = "users.User"
@@ -155,7 +155,7 @@ if not USE_AWS:
     print(f"APPS DIR: {APPS_DIR}")
     MEDIA_ROOT = str(APPS_DIR / "media")
     # https://docs.djangoproject.com/en/dev/ref/settings/#media-url
-    MEDIA_URL = "/media/"
+    MEDIA_URL = "../media/"
 
 else:
     # STORAGES
@@ -355,3 +355,14 @@ SOCIALACCOUNT_FORMS = {"signup": "chat_all_the_docs.users.forms.UserSocialSignup
 # ------------------------------------------------------------------------------
 # If OPEN_ACCESS_MODE is True, no API_KEY is checked (for use in local deploys or on VPC)
 OPEN_ACCESS_MODE = env.bool("OPEN_ACCESS_MODE", False)
+
+# Channels Configuration
+# ------------------------------------------------------------------------------
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],  # Adjust this to match your Redis configuration
+        },
+    },
+}

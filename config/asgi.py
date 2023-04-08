@@ -12,6 +12,12 @@ import sys
 from pathlib import Path
 
 from django.core.asgi import get_asgi_application
+from django.urls import path
+
+from config.api.websockets.queries import CollectionQueryConsumer
+from config.websocket import websocket_application  # noqa isort:skip
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.auth import AuthMiddlewareStack
 
 # This allows easy placement of apps within the interior
 # chat_all_the_docs directory.
@@ -28,13 +34,24 @@ django_application = get_asgi_application()
 # application = HelloWorldApplication(application)
 
 # Import websocket application here, so apps from django_application are loaded first
-from config.websocket import websocket_application  # noqa isort:skip
 
+# async def application(scope, receive, send):
+#     if scope["type"] == "http":
+#         await django_application(scope, receive, send)
+#     elif scope["type"] == "websocket":
+#         await websocket_application(scope, receive, send)
+#     else:
+#         raise NotImplementedError(f"Unknown scope type {scope['type']}")
 
-async def application(scope, receive, send):
-    if scope["type"] == "http":
-        await django_application(scope, receive, send)
-    elif scope["type"] == "websocket":
-        await websocket_application(scope, receive, send)
-    else:
-        raise NotImplementedError(f"Unknown scope type {scope['type']}")
+application = ProtocolTypeRouter(
+    {
+        "http": get_asgi_application(),
+        "websocket": AuthMiddlewareStack(
+            URLRouter(
+                [
+                    path("ws/collections/query/", CollectionQueryConsumer.as_asgi()),
+                ]
+            )
+        ),
+    }
+)
