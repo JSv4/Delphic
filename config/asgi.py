@@ -13,6 +13,7 @@ django.setup()
 
 import sys
 from pathlib import Path
+from django.urls import re_path
 from django.core.asgi import get_asgi_application
 from django.urls import path
 from config.api.websockets.queries import CollectionQueryConsumer
@@ -49,7 +50,7 @@ application = ProtocolTypeRouter(
         "websocket": AuthMiddlewareStack(
             URLRouter(
                 [
-                    path("ws/collections/query/", CollectionQueryConsumer.as_asgi()),
+                    re_path(r'ws/collections/(?P<collection_id>\w+)/query/$', CollectionQueryConsumer.as_asgi()),
                 ]
             )
         ),

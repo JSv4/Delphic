@@ -51,12 +51,11 @@ async def load_collection_model(collection_id: Union[str, int]) -> GPTSimpleVect
         # Check if the JSON file exists
         cache_dir = Path(settings.BASE_DIR) / 'cache'
         cache_file_path = cache_dir / f'model_{collection_id}.json'
-        if not os.path.exists(cache_file_path):
+        if not cache_file_path.exists():
             cache_dir.mkdir(parents=True, exist_ok=True)
-            # Load the JSON from the Collection.model FileField and save it to cache
-            with default_storage.open(collection.model.path, 'rb') as model_file:
-                with cache_file_path.open('wb') as cache_file:
-                    shutil.copyfileobj(model_file, cache_file)
+            with collection.model.open('rb') as model_file:
+                with cache_file_path.open('w+', encoding='utf-8') as cache_file:
+                    cache_file.write(model_file.read().decode('utf-8'))
 
         # Call GPTSimpleVectorIndex.load_from_disk
         index = GPTSimpleVectorIndex.load_from_disk(cache_file_path)
