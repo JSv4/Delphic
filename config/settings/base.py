@@ -358,11 +358,12 @@ OPEN_ACCESS_MODE = env.bool("OPEN_ACCESS_MODE", False)
 
 # Channels Configuration
 # ------------------------------------------------------------------------------
+ASGI_APPLICATION = "config.asgi.application"
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],  # Adjust this to match your Redis configuration
+            "hosts": [('redis', 6379)],  # Adjust this to match your Redis configuration
         },
     },
 }

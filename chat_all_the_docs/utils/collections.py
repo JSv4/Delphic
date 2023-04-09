@@ -26,7 +26,7 @@ def format_source(source):
     return formatted_source
 
 
-def query_collection(collection_id: Union[str, int], query_str: str) -> str:
+async def query_collection(collection_id: Union[str, int], query_str: str) -> str:
     """
     Query a collection with a given question and return the response as nicely-structured markdown text.
 
@@ -46,31 +46,38 @@ def query_collection(collection_id: Union[str, int], query_str: str) -> str:
     6. Format the response and sources as markdown text and return the formatted text.
     """
     # Retrieve the Collection object
-    collection = Collection.objects.get(id=collection_id)
+    collection = await Collection.objects.aget(id=collection_id)
 
-    # Check if the JSON file exists
-    cache_dir = Path(settings.BASE_DIR) / 'cache'
-    cache_file_path = cache_dir / f'model_{collection_id}.json'
-    if not os.path.exists(cache_file_path):
-        cache_dir.mkdir(parents=True, exist_ok=True)
-        # Load the JSON from the Collection.model FileField and save it to cache
-        with default_storage.open(collection.model.path, 'rb') as model_file:
-            with cache_file_path.open('wb') as cache_file:
-                shutil.copyfileobj(model_file, cache_file)
+    # Make sure there's a model
+    if collection.model.name:
 
-    # Call GPTSimpleVectorIndex.load_from_disk
-    index = GPTSimpleVectorIndex.load_from_disk(cache_file_path)
+        # Check if the JSON file exists
+        cache_dir = Path(settings.BASE_DIR) / 'cache'
+        cache_file_path = cache_dir / f'model_{collection_id}.json'
+        if not os.path.exists(cache_file_path):
+            cache_dir.mkdir(parents=True, exist_ok=True)
+            # Load the JSON from the Collection.model FileField and save it to cache
+            with default_storage.open(collection.model.path, 'rb') as model_file:
+                with cache_file_path.open('wb') as cache_file:
+                    shutil.copyfileobj(model_file, cache_file)
 
-    # Call index.query and return the response
-    response = index.query(query_str)
+        # Call GPTSimpleVectorIndex.load_from_disk
+        index = GPTSimpleVectorIndex.load_from_disk(cache_file_path)
 
-    # Format the response as markdown
-    markdown_response = f"## Response\n\n{response}\n\n"
+        # Call index.query and return the response
+        response = index.query(query_str)
 
-    if response.source_nodes:
-        markdown_sources = f"## Sources\n\n{response.get_formatted_sources()}"
+        # Format the response as markdown
+        markdown_response = f"## Response\n\n{response}\n\n"
+
+        if response.source_nodes:
+            markdown_sources = f"## Sources\n\n{response.get_formatted_sources()}"
+        else:
+            markdown_sources = ""
+
+        formatted_response = f"{markdown_response}{markdown_sources}"
+
     else:
-        markdown_sources = ""
+        formatted_response = "No model exists for this collection!"
 
-    formatted_response = f"{markdown_response}{markdown_sources}"
     return formatted_response

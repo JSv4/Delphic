@@ -1,6 +1,7 @@
 import os
 import uuid
 import tempfile
+from config import celery_app
 from pathlib import Path
 from django.core.files import File
 from chat_all_the_docs.indexes.models import Collection
@@ -8,6 +9,7 @@ from chat_all_the_docs.indexes.models import Collection
 from llama_index import GPTSimpleVectorIndex, download_loader
 
 
+@celery_app.task
 def create_index(collection_id):
     """
     Celery task to create a GPTSimpleVectorIndex for a given Collection object.

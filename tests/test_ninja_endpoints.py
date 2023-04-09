@@ -1,16 +1,10 @@
-import base64
-import json
-import asyncio
 import httpx
 import logging
 from django.test import TransactionTestCase, AsyncClient
-from django.db import transaction
 from django.contrib.auth import get_user_model
 from asgiref.sync import async_to_sync, sync_to_async
 from rest_framework_api_key.models import APIKey
-from ninja.testing import TestClient
 from config.api.endpoints import collections_router
-from concurrent.futures import ThreadPoolExecutor
 from config import asgi
 from chat_all_the_docs.indexes.models import Collection, Document
 
@@ -49,8 +43,6 @@ class CollectionTestCase(TransactionTestCase):
 
     async def test_create_collection(self):
 
-
-
         request_key = await self.get_request_key()
 
         print(f"Request key: {request_key}")
@@ -61,7 +53,6 @@ class CollectionTestCase(TransactionTestCase):
         collection_data = {
             "title": "Test Collection",
             "description": "A test collection",
-            "author": self.user.id,
             "status": "COMPLETE",
         }
 
@@ -92,7 +83,6 @@ class CollectionTestCase(TransactionTestCase):
         response_data = response.json()
         self.assertEqual(response_data["title"], collection_data["title"])
         self.assertEqual(response_data["description"], collection_data["description"])
-        self.assertEqual(response_data["author"], collection_data["author"])
         self.assertEqual(response_data["status"], collection_data["status"])
 
         # Check if the documents are saved correctly

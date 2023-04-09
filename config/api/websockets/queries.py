@@ -13,9 +13,10 @@ class CollectionQueryConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
+        print(f"Received text_data_json: {text_data_json}")
         collection_id = text_data_json['collection_id']
-        query_str = text_data_json['query_str']
+        query_str = text_data_json['query']
 
-        response = query_collection(collection_id, query_str)
+        response = await query_collection(collection_id, query_str)
 
-        await self.send(text_data=response)
+        await self.send(json.dumps({"response": response}, indent=4))

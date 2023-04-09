@@ -8,14 +8,14 @@ https://docs.djangoproject.com/en/dev/howto/deployment/asgi/
 
 """
 import os
+import django
+django.setup()
+
 import sys
 from pathlib import Path
-
 from django.core.asgi import get_asgi_application
 from django.urls import path
-
 from config.api.websockets.queries import CollectionQueryConsumer
-from config.websocket import websocket_application  # noqa isort:skip
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 
