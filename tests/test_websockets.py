@@ -23,7 +23,7 @@ class TestCollectionQueryConsumer(TestCase):
         print(f"Web socket response: {response}")
         self.assertEqual(response["response"], "No model exists for this collection!")
 
-        communicator.disconnect()
+        await communicator.disconnect()
 
 
 # class TestCollectionQueryConsumer(ChannelsLiveServerTestCase):
