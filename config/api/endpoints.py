@@ -5,6 +5,9 @@ from django.conf import settings
 from django.http import HttpRequest
 from django.core.files.base import ContentFile
 
+from ninja_jwt.controller import NinjaJWTDefaultController
+from ninja_extra import NinjaExtraAPI
+
 from chat_all_the_docs.utils.collections import query_collection
 from .auth.api_key import NinjaApiKeyAuth
 from asgiref.sync import sync_to_async
@@ -14,7 +17,8 @@ from chat_all_the_docs.tasks import create_index
 
 collections_router = Router()
 
-api = NinjaAPI(
+
+api = NinjaExtraAPI(
     title="GREMLIN Engine NLP Microservice",
     description="Chat-All-The-Docs is a LLM document model orchestration engine that makes it easy to vectorize a "
                 "collection of documents and then build and serve discrete Llama-Index models for each collection to "
@@ -24,6 +28,7 @@ api = NinjaAPI(
 )
 
 api.add_router("/collections", collections_router)
+api.register_controllers(NinjaJWTDefaultController)
 
 
 @api.get(

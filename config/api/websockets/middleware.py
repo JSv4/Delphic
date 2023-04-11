@@ -1,23 +1,19 @@
 import jwt
 import logging
-from jwt.exceptions import DecodeError
 from django.conf import settings
-from channels.exceptions import DenyConnection
 from channels.middleware import BaseMiddleware
 from channels.db import database_sync_to_async
-from django.contrib.auth.models import AnonymousUser
-from django.http import JsonResponse
-from ninja_jwt.exceptions import InvalidToken, TokenError, TokenBackendError
-from ninja_jwt.tokens import UntypedToken
 from django.contrib.auth import get_user_model
 from urllib.parse import parse_qs, parse_qsl
 
-User = get_user_model()
 logger = logging.getLogger(__name__)
 
 
 @database_sync_to_async
 def get_user_from_token(token):
+    from ninja_jwt.tokens import UntypedToken
+    User = get_user_model()
+
     print(f"Analyze token: {token}")
     try:
         UntypedToken(token)  # Validate the token

@@ -67,6 +67,8 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     "channels",
     "ninja",
+    "ninja_extra",
+    "corsheaders",
     "django_celery_beat",
     "rest_framework",
     "rest_framework_api_key",
@@ -121,6 +123,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#middleware
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
