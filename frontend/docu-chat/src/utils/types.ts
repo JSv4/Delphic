@@ -23,6 +23,31 @@ selected_doc: number;
 handleChange: (a: any) => void;
 }
 
+export interface CollectionIn {
+    title: string;
+    description: string;
+    status: string;
+  }
+  
+  export interface CollectionModelSchema {
+    id: number;
+    title: string;
+    description: string;
+    status: string;
+    created: string;
+    modified: string;
+  }
+  
+
+  export interface CollectionQueryInput {
+    collection_id: number;
+    query_str: string;
+  }
+  
+  export interface CollectionQueryOutput {
+    response: string;
+  }
+
 export enum UploadStatus {
     NOT_STARTED = "NOT_STARTED",
     SUCCESS = "SUCCESS",

@@ -71,6 +71,7 @@ export function RightCol({
 
 interface DocumentUploadModalProps {
   open: boolean;
+  collection_id: string;
   onClose: () => void;
   refetch?: (args?: any) => any | void;
 }
