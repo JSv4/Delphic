@@ -102,3 +102,16 @@ async def get_my_collections_view(request: HttpRequest):
              "status": collection.status,
              "created": collection.created.isoformat(),
              "modified": collection.modified.isoformat()} async for collection in collections]
+
+
+@collections_router.post("/{collection_id}/add_file", summary="Add a file to a collection")
+async def add_file_to_collection(request, collection_id: int, file: UploadedFile = File(...), description: str = Form(...)):
+    collection = await sync_to_async(Collection.objects.get)(id=collection_id)
+
+    doc_data = file.read()
+    doc_file = ContentFile(doc_data, file.name)
+
+    document = Document(collection=collection, file=doc_file, description=description)
+    await sync_to_async(document.save)()
+
+    return {"message": f"Added file {file.name} to collection {collection_id}"}
