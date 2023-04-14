@@ -20,7 +20,6 @@ describe('API', () => {
     const collection: CollectionIn = {
       title: 'Test Collection',
       description: 'A test collection',
-      status: 'COMPLETE',
     };
 
     const file1 = new File(['test content'], 'document1.txt', { type: 'text/plain' });
@@ -29,7 +28,6 @@ describe('API', () => {
     const formData = new FormData();
     formData.append('title', collection.title);
     formData.append('description', collection.description);
-    formData.append('status', collection.status);
     formData.append('files', file1);
     formData.append('files', file2);
 
@@ -38,7 +36,6 @@ describe('API', () => {
     expect(response.data).toMatchObject({
       title: collection.title,
       description: collection.description,
-      status: collection.status,
     });
   });
 

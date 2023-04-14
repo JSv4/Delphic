@@ -48,5 +48,8 @@ export const newCollectionForm_Schema = {
         },
       },
     },
+    customFormats: {
+        "data-url": "FileList",
+      },
     required: ["title", "description"],
   };

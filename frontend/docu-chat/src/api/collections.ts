@@ -5,18 +5,19 @@ const API_URL = 'http://localhost:8000';
 
 export const createCollection = async (
     collectionData: CollectionIn,
-    files: FileList,
+    files: FileList | null,
     authToken: string
 ): Promise<AxiosResponse<CollectionModelSchema>> => {
     const formData = new FormData();
     formData.append("title", collectionData.title);
     formData.append("description", collectionData.description);
-    formData.append("status", collectionData.status);
 
-    for (let i = 0; i < files.length; i++) {
-        formData.append("files", files[i]);
+    if (files) {
+        for (let i = 0; i < files.length; i++) {
+            formData.append("files", files[i]);
+        }
     }
-
+   
     const headers: Record<string, string> = {
         "Content-Type": "multipart/form-data",
         "Authorization": authToken

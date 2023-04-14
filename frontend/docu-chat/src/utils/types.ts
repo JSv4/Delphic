@@ -26,7 +26,6 @@ handleChange: (a: any) => void;
 export interface CollectionIn {
     title: string;
     description: string;
-    status: string;
   }
   
   export interface CollectionModelSchema {

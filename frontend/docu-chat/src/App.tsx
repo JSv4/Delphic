@@ -1,7 +1,6 @@
-import { Button } from "@mui/material";
 import { useState } from "react";
-import { CollectionList } from "./collections/CollectionList";
 import CollectionCreateModal from "./collections/NewCollectionModal";
+import { DrawerLayout } from "./layouts/DrawerLayout";
 import {LoginForm} from "./LoginForm";
 
 
@@ -12,23 +11,20 @@ const App = () => {
   const [selectedCollectionId, setSelectedCollectionId] = useState<string>();
   const [showAddDocsModal, setShowAddDocsModal] = useState<boolean>(false);
 
-  const handleLogin = () => {
+  const handleLogin = (authToken: string) => {
     setLoggedIn(true);
+    setAuthToken(authToken);
   };
 
   return (
-    <div>
-      
-      {loggedIn ? (
-        <>
-        <Button variant="contained" onClick={() => setShowNewCollectionModal(true)}>New Collection</Button>
-        <CollectionCreateModal open={showNewCollectionModal} authToken={""} handleClose={function (): void {
+    <div style={{height:'100%'}}>
+      <CollectionCreateModal open={showNewCollectionModal} authToken={""} handleClose={function (): void {
           throw new Error("Function not implemented.");
         } } handleCreate={function (): void {
           throw new Error("Function not implemented.");
         } }/>
-        <CollectionList />
-        </>
+      {loggedIn && authToken ? (
+        <DrawerLayout authToken={authToken}/>      
       ) : (
         <LoginForm onLogin={handleLogin} />
       )}
