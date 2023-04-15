@@ -4,6 +4,8 @@ import { toast } from "react-toastify";
 import { Divider } from "semantic-ui-react";
 import { CollectionModelSchema } from "../utils/types";
 import { ErrorMessageBox } from "../widgets/errors/ErrorMessageBox";
+import { LoadingMessageBox } from "../widgets/errors/LoadingMessageBox";
+import { ChatCaption } from "./ChatCaption";
 import ChatMessage from "./ChatMessage";
 import { ChatMessageLoading } from "./ChatMessageLoading";
 
@@ -15,17 +17,7 @@ interface Message {
 }
 
 const ChatView = ({ authToken, selectedCollection }: { authToken: string, selectedCollection: CollectionModelSchema }) => {
-    const [messages, setMessages] = useState<Message[]>([
-        { sender_id: "user", message: "I hope you're happy today", timestamp: "12:23:56" },
-        { sender_id: "server", message: "No, I am angry", timestamp: "12:23:58" },
-        { sender_id: "user", message: "I am very sorry to hear that", timestamp: "12:24:56" },
-        { sender_id: "user", message: "I hope you're happy today", timestamp: "12:23:56" },
-        { sender_id: "server", message: "No, I am angry", timestamp: "12:23:58" },
-        { sender_id: "user", message: "I am very sorry to hear that", timestamp: "12:24:56" },
-        { sender_id: "user", message: "I hope you're happy today", timestamp: "12:23:56" },
-        { sender_id: "server", message: "No, I am angry", timestamp: "12:23:58" },
-        { sender_id: "user", message: "I am very sorry to hear that", timestamp: "12:24:56" },
-    ]);
+    const [messages, setMessages] = useState<Message[]>([]);
 
     const [error, setError] = useState(false);
     const [inputMessage, setInputMessage] = useState("");
@@ -118,68 +110,78 @@ const ChatView = ({ authToken, selectedCollection }: { authToken: string, select
         setInputMessage(event.target.value);
     };
 
+    let content = <></>;
+    if (connecting) {
+        content = <LoadingMessageBox message="Connecting..."/>;
+    }
+    else if (error) {
+        content =  <ErrorMessageBox message="Collection Cannot be Loaded" />;
+    }
+    else {
+        content =  <>
+        <div
+            style={{
+                flexGrow: 1,
+                display: "flex",
+                flexDirection: "column",
+                overflowY: "auto",
+                padding: "16px",
+            }}
+        >
+            {messages.length === 0 ? <ChatCaption caption="Welcome! Start a conversation by sending a message." /> : <></>}
+            {messages.map((message, index) => (
+                <ChatMessage
+                    key={index}
+                    sender_id={message.sender_id}
+                    message={message.message}
+                    timestamp={message.timestamp}
+                />
+            ))}
+            {
+                awaitingMessage ? <ChatMessageLoading /> : <></>
+            }
+        </div>
+        <Divider />
+        <div
+            style={{
+                display: "flex",
+                alignItems: "center",
+                marginTop: 8,
+                marginBottom: 8
+            }}
+        >
+            <TextField
+                multiline
+                rows={2}
+                variant="outlined"
+                style={{
+                    flexGrow: 1,
+                    marginRight: 8,
+                    marginLeft: 8
+                }}
+                value={inputMessage}
+                onChange={handleInputChange}
+            />
+            <Button
+                onClick={() => handleSendMessage()}
+                variant="contained"
+                style={{
+                    height: "100%",
+                    borderRadius: 5,
+                    color: "white",
+                    marginRight: 10
+                }}
+            >
+                Send
+            </Button>
+        </div>
+    </> 
+    }
+
     return (
         <div style={{ display: "flex", flexDirection: "column", flex: 1, overflow: 'hidden', marginTop: '64px' }}>
             {
-                error ?
-                    <ErrorMessageBox message="Collection Cannot be Loaded" /> :
-                    <>
-                        <div
-                            style={{
-                                flexGrow: 1,
-                                display: "flex",
-                                flexDirection: "column",
-                                overflowY: "auto",
-                                padding: "16px",
-                            }}
-                        >
-                            {messages.map((message, index) => (
-                                <ChatMessage
-                                    key={index}
-                                    sender_id={message.sender_id}
-                                    message={message.message}
-                                    timestamp={message.timestamp}
-                                />
-                            ))}
-                            {
-                                awaitingMessage ? <ChatMessageLoading /> : <></>
-                            }
-                        </div>
-                        <Divider />
-                        <div
-                            style={{
-                                display: "flex",
-                                alignItems: "center",
-                                marginTop: 8,
-                                marginBottom: 8
-                            }}
-                        >
-                            <TextField
-                                multiline
-                                rows={2}
-                                variant="outlined"
-                                style={{
-                                    flexGrow: 1,
-                                    marginRight: 8,
-                                    marginLeft: 8
-                                }}
-                                value={inputMessage}
-                                onChange={handleInputChange}
-                            />
-                            <Button
-                                onClick={() => handleSendMessage()}
-                                variant="contained"
-                                style={{
-                                    height: "100%",
-                                    borderRadius: 5,
-                                    color: "white",
-                                    marginRight: 10
-                                }}
-                            >
-                                Send
-                            </Button>
-                        </div>
-                    </>
+              content
             }
         </div >
     );
