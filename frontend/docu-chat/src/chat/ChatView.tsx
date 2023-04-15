@@ -17,13 +17,13 @@ interface Message {
 }
 
 const ChatView = ({ authToken, selectedCollection }: { authToken: string, selectedCollection: CollectionModelSchema }) => {
-    const [messages, setMessages] = useState<Message[]>([]);
+    const websocket = useRef<WebSocket | null>(null);
 
+    const [messages, setMessages] = useState<Message[]>([]);
     const [error, setError] = useState(false);
     const [inputMessage, setInputMessage] = useState("");
     const [awaitingMessage, setAwaitingMessage] = useState(false);
     const [connecting, setConnecting] = useState(false);
-    const websocket = useRef<WebSocket | null>(null);
     const [userInput, setUserInput] = useState("");
 
     const setupWebsocket = () => {
@@ -33,16 +33,15 @@ const ChatView = ({ authToken, selectedCollection }: { authToken: string, select
         websocket.current.onopen = (event) => {
             setError(false);
             setConnecting(false);
+            setAwaitingMessage(false);
+
             console.log('WebSocket connected:', event);
         };
 
         websocket.current.onmessage = (event) => {
             const data = JSON.parse(event.data);
             console.log('WebSocket message received:', data);
-
-            if (awaitingMessage) {
-                setAwaitingMessage(false);
-            }
+            setAwaitingMessage(false);
 
             if (data.response) {
                 // Update the messages state with the new message from the server
@@ -62,6 +61,8 @@ const ChatView = ({ authToken, selectedCollection }: { authToken: string, select
                 toast.warning("Selected collection's model is unavailable. Was it created properly?")
                 setError(true);
                 setConnecting(false);
+                setAwaitingMessage(false);
+
             }
             console.log('WebSocket closed:', event);
         };
@@ -69,6 +70,8 @@ const ChatView = ({ authToken, selectedCollection }: { authToken: string, select
         websocket.current.onerror = (event) => {
             setError(true);
             setConnecting(false);
+            setAwaitingMessage(false);
+
             console.error('WebSocket error:', event);
         };
 
@@ -79,10 +82,12 @@ const ChatView = ({ authToken, selectedCollection }: { authToken: string, select
 
     useEffect(() => {
         setupWebsocket();
+        setMessages([]);
     }, []);
 
     useEffect(() => {
         setupWebsocket();
+        setMessages([]);
     }, [selectedCollection])
 
     const handleSendMessage = () => {

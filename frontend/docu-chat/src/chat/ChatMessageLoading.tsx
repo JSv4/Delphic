@@ -1,6 +1,30 @@
+import { keyframes } from "@emotion/react";
+import { styled } from "@mui/material";
+import { Box } from "@mui/system";
 import React from "react";
 import "./ChatMessageLoading.module.css";
 
+
+const fadeInOut = keyframes`
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+`;
+
+
+const Dot = styled("span")<{ delay: number }>`
+  animation: ${fadeInOut} 1.5s linear infinite;
+  animation-delay: ${(props) => props.delay}s;
+  font-size: 1.2rem;
+  margin-left: 2px;
+  margin-right: 2px;
+`;
 
 export const ChatMessageLoading: React.FC = () => {
 
@@ -11,44 +35,25 @@ export const ChatMessageLoading: React.FC = () => {
     maxWidth: "70%",
   };
 
-  const userStyle = {
-    ...messageStyle,
-    background: "#cce6ff",
-    alignSelf: "flex-start",
-  };
-
-  const serverStyle = {
-    ...messageStyle,
-    background: "#f2ccff",
-    alignSelf: "flex-end",
-  };
-
   return (
-    <div
-  style={{
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-end",
-  }}
->
-  <div
-    style={{
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "flex-end",
-    }}
-  >
-    <div style={serverStyle}>
-        <div className="chat-bubble loading-bubble">
-            <span className="loading-dot"></span>
-            <span className="loading-dot"></span>
-            <span className="loading-dot"></span>
-        </div>
-    </div>
-  
-  </div>
-  {/* <small>{timestamp}</small> */}
-</div>
+    <Box
+      sx={{
+        alignSelf: "flex-end",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        padding: "0.5rem",
+        borderRadius: "1rem",
+        backgroundColor: "#f0f0f0",
+        height: "48px",
+        marginBottom: "0.5rem",
+        maxWidth: "70%",
+      }}
+    >
+      <Dot delay={0}>.</Dot>
+      <Dot delay={0.2}>.</Dot>
+      <Dot delay={0.4}>.</Dot>
+    </Box>
     
   );
 };
