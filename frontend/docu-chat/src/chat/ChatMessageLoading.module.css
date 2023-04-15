@@ -1,0 +1,45 @@
+.chat-bubble {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background-color: #fff;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+
+.loading-bubble {
+    position: relative;
+}
+
+.loading-dot {
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    background-color: #333;
+    border-radius: 50%;
+    animation: loading 1.2s infinite;
+}
+
+.loading-dot:nth-child(2) {
+    margin-left: 0.25rem;
+    animation-delay: 0.15s;
+}
+
+.loading-dot:nth-child(3) {
+    margin-left: 0.25rem;
+    animation-delay: 0.3s;
+}
+
+@keyframes loading {
+    0% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-0.25rem);
+    }
+
+    100% {
+        transform: translateY(0);
+    }
+}

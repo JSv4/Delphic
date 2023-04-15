@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 import CollectionCreateModal from "./collections/NewCollectionModal";
 import { DrawerLayout } from "./layouts/DrawerLayout";
 import {LoginForm} from "./LoginForm";
@@ -18,6 +20,7 @@ const App = () => {
 
   return (
     <div style={{height:'100%'}}>
+      <ToastContainer/>
       <CollectionCreateModal open={showNewCollectionModal} authToken={""} handleClose={function (): void {
           throw new Error("Function not implemented.");
         } } handleCreate={function (): void {
