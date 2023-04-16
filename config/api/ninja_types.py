@@ -12,7 +12,6 @@ class CollectionStatusEnum(str):
 class CollectionIn(Schema):
     title: str
     description: Optional[str]
-    status: CollectionStatusEnum = CollectionStatusEnum.QUEUED
 
 
 class CollectionModelSchema(Schema):
@@ -22,7 +21,9 @@ class CollectionModelSchema(Schema):
     status: CollectionStatusEnum
     created: str
     modified: str
-
+    processing: bool
+    has_model: bool
+    document_names: List[str]
 
 class CollectionQueryInput(Schema):
     collection_id: int

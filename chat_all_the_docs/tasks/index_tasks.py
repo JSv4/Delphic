@@ -29,6 +29,8 @@ def create_index(collection_id):
     try:
         # Get the Collection object with related documents
         collection = Collection.objects.prefetch_related("documents").get(id=collection_id)
+        collection.processing = True
+        collection.save()
 
         # Create a temporary directory to store the document files
         with tempfile.TemporaryDirectory() as tempdir:
@@ -66,6 +68,9 @@ def create_index(collection_id):
 
             # Delete the temporary index file
             os.unlink(f.name)
+
+        collection.processing = False
+        collection.save()
 
         return True
     except Exception as e:

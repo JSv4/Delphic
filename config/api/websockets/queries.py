@@ -16,9 +16,13 @@ class CollectionQueryConsumer(AsyncWebsocketConsumer):
             print(f"Index loaded: {self.index}")
             await self.accept()
             print("Connected.")  # Debugging print statement
+        except ValueError as e:
+            print(f"Value error prevented model loading: {e}")
+            await self.accept()
+            await self.close(code=4000)
         except Exception as e:
             print(f"Error during connection: {e}")  # Debugging print statement
-            raise e
+
 
     async def disconnect(self, close_code):
         pass

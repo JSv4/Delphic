@@ -30,6 +30,7 @@ class Collection(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
     model = models.FileField(upload_to='models/')
+    processing = models.BooleanField(blank=True, null=True, default=False)
 
     def __str__(self):
         return self.title

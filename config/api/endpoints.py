@@ -11,12 +11,12 @@ from ninja_extra import NinjaExtraAPI
 from chat_all_the_docs.utils.collections import query_collection
 from .auth.api_key import NinjaApiKeyAuth
 from asgiref.sync import sync_to_async
-from .ninja_types import CollectionIn, CollectionModelSchema, CollectionQueryOutput, CollectionQueryInput
+from .ninja_types import CollectionIn, CollectionModelSchema, CollectionQueryOutput, CollectionQueryInput, \
+    CollectionStatusEnum
 from chat_all_the_docs.indexes.models import Document, Collection
 from chat_all_the_docs.tasks import create_index
 
 collections_router = Router()
-
 
 api = NinjaExtraAPI(
     title="GREMLIN Engine NLP Microservice",
@@ -43,17 +43,23 @@ def check_heartbeat(request):
 
 
 @collections_router.post("/create")
-async def create_collection(request, collection_data: CollectionIn = Form(...), files: List[UploadedFile] = File(...)):
+async def create_collection(request,
+                            title: str = Form(...),
+                            description: str = Form(...),
+                            files: List[UploadedFile] = File(...)):
     key = None if getattr(request, "auth", None) is None else request.auth
     if key is not None:
         key = await key
     print(f"API KEY: {key}")
+    print(request.POST)
+
+    print(f"Create collection... title '{title}': '{description}'")
 
     collection_instance = Collection(
         api_key=key,
-        title=collection_data.title,
-        description=collection_data.description,
-        status=collection_data.status,
+        title=title,
+        description=description,
+        status=CollectionStatusEnum.QUEUED,
     )
 
     await sync_to_async(collection_instance.save)()
@@ -74,6 +80,11 @@ async def create_collection(request, collection_data: CollectionIn = Form(...), 
         status=collection_instance.status,
         created=collection_instance.created.isoformat(),
         modified=collection_instance.modified.isoformat(),
+        processing=collection_instance.processing,
+        has_model=bool(collection_instance.model.name),
+        document_names=await sync_to_async(list)(
+            await sync_to_async(collection_instance.documents.values_list)('file', flat=True))
+        # Fetch document names directly
     )
 
 
@@ -101,11 +112,17 @@ async def get_my_collections_view(request: HttpRequest):
              "description": collection.description,
              "status": collection.status,
              "created": collection.created.isoformat(),
-             "modified": collection.modified.isoformat()} async for collection in collections]
+             "modified": collection.modified.isoformat(),
+             "processing": collection.processing,
+             "has_model": bool(collection.model.name),
+             "document_names": await sync_to_async(list)(
+                 await sync_to_async(collection.documents.values_list)('file', flat=True))
+             } async for collection in collections]
 
 
 @collections_router.post("/{collection_id}/add_file", summary="Add a file to a collection")
-async def add_file_to_collection(request, collection_id: int, file: UploadedFile = File(...), description: str = Form(...)):
+async def add_file_to_collection(request, collection_id: int, file: UploadedFile = File(...),
+                                 description: str = Form(...)):
     collection = await sync_to_async(Collection.objects.get)(id=collection_id)
 
     doc_data = file.read()

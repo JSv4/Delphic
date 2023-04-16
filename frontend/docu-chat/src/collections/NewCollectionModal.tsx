@@ -39,20 +39,12 @@ const CollectionCreateModal: React.FC<CollectionCreateModalProps> = ({
   const [description, setDescription] = useState<string>("");
   const [files, setFiles] = useState<FileList | null>(null);  
 
-  // State to store form data
-  const [formData, setFormData] = useState<FormData>({title: "", description:""});
-
-  // Function to handle form data change
-  const handleChange = ({ formData }: {formData: FormData}) => {
-    setFormData(formData);
-  };
-
   const handleSubmit = async (data: any) => {
     console.log("submit data", data);
     try {
       await createCollection({
-        title: formData.title,
-        description: formData.description
+        title: title,
+        description: description
       }, 
       files, 
       authToken);

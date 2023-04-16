@@ -1,15 +1,16 @@
 from django.contrib import admin
 from .models import Collection, Document, APIKey
 
+
 class DocumentInline(admin.StackedInline):
     model = Document
     extra = 0
-    fields = ('file', 'description', 'created', 'modified')
+    fields = ('id', 'file', 'description', 'created', 'modified')
     readonly_fields = ('created', 'modified')
 
 
 class CollectionAdmin(admin.ModelAdmin):
-    list_display = ('title', 'description', 'status', 'created', 'modified')
+    list_display = ('id', 'title', 'description', 'status', 'created', 'modified')
     list_filter = ('status',)
     search_fields = ('title', 'description')
     fields = ('api_key', 'title', 'description', 'status', 'created', 'modified', 'model')
