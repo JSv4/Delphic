@@ -3,8 +3,9 @@ import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { Divider } from "semantic-ui-react";
 import { CollectionModelSchema } from "../utils/types";
-import { ErrorMessageBox } from "../widgets/errors/ErrorMessageBox";
-import { LoadingMessageBox } from "../widgets/errors/LoadingMessageBox";
+import { ErrorMessageBox } from "../widgets/messages/ErrorMessageBox";
+import { InfoMessageBox } from "../widgets/messages/InfoMessageBox";
+import { LoadingMessageBox } from "../widgets/messages/LoadingMessageBox";
 import { ChatCaption } from "./ChatCaption";
 import ChatMessage from "./ChatMessage";
 import { ChatMessageLoading } from "./ChatMessageLoading";
@@ -16,7 +17,7 @@ interface Message {
     timestamp: string;
 }
 
-const ChatView = ({ authToken, selectedCollection }: { authToken: string, selectedCollection: CollectionModelSchema }) => {
+const ChatView = ({ authToken, selectedCollection }: { authToken: string, selectedCollection: CollectionModelSchema}) => {
     const websocket = useRef<WebSocket | null>(null);
 
     const [messages, setMessages] = useState<Message[]>([]);
