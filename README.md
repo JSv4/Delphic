@@ -1,5 +1,7 @@
 # Delphic
 
+![](./docs/images/Delphic.png)
+
 A simple framework to build and deploy LLM agents that can be used to analyze and manipulate text data from documents. 
 
 [![Built with Cookiecutter Django](https://img.shields.io/badge/built%20with-Cookiecutter%20Django-ff69b4.svg?logo=cookiecutter)](https://github.com/cookiecutter/cookiecutter-django/)
@@ -58,9 +60,11 @@ sudo docker-compose --profile fullstack -f local.yml build
 sudo docker-compose --profile fullstack -f local.yml up 
 ```
 
+Go to `localhost:3000` to see the frontend.
+
 #### I Want to Develop / Modify the Frontend
 
-*If you want to actively develop the frontend, we suggest you **NOT** use the `--profile=fullstack` flag as every change will require a full container rebuild. Instead, instead of step #6 above, 
+*If you want to actively develop the frontend, we suggest you **NOT** use the `--profile=fullstack` flag as every change will require a full container rebuild. Instead, instead of step #5 above, 
 
 5. First, launch the backend without the fullstack flag:
 
@@ -68,33 +72,41 @@ sudo docker-compose --profile fullstack -f local.yml up
 sudo docker-compose -f local.yml up
 ```
 
-6. Now, in a separate terminal, cd into the frontend directory and start a development server (**Note, we assume you have nvm installed. If you don't install it now**):
+6. In one terminal window, launch your backend:
+
+```commandline
+sudo docker-compose -f local.yml up 
+```
+
+7. Now, in a separate terminal, cd into the frontend directory and start a development server (**Note, we assume you have nvm installed. If you don't install it now**):
 
 ```commandline
 cd frontend
 nvm use
-npm install
-npm run start
+npm install yarn
+yarn install
+yarn run start
 ```
+
+Go to `localhost:3000` to see the frontend.
 
 ### Production Deploy
 
 This assumes you want to make the application available to the internet at some kind of fully qualified domain like delphic.opensource.legal. In order to do this, you need to update a couple configurations. 
 
-**TODO - insert documentation from OpenContracts**
-
+**TODO - insert documentation**
 
 ## Using the Application
 
 ### Warning / Disclaimer
 
-At the moment, any user who is logged in will have full permissions. We plan to implement the more precise, roles-based access control module we developed for [OpenContracts](), but, for now
+At the moment, any user who is logged in will have full permissions. We plan to implement the more precise, roles-based access control module we developed for [OpenContracts](https://github.com/JSv4/OpenContracts), but, for now
 be aware that anyone with any type of login credentials can create and delete collections. **Creating collections uses OpenAI credits / costs money**. 
 
 If you want to create a super user, you can follow the typical django command (from the repo root in your local filesystem): 
 
 ```commandline
-sudo docker-compose - local.yml run django python manage.py createsuperuser
+sudo docker-compose -f local.yml run django python manage.py createsuperuser
 ```
 
 Once you have a super user, you can sign-in at `http://localhost:8000/admin`, and, from there, you can create additional users. If you make someone a superuser, they can create new users, delete users and basically do anything they want. See Django's user admin guide [here]().
