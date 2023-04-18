@@ -116,7 +116,7 @@ Once you have a super user, you can sign-in at `http://localhost:8000/admin`, an
 
 **WARNING - If you're using OpenAI as your LLM engine, any Collection interaction will use API credits / cost money. If you're using your own OpenAI API key, you've also accepted their terms of service which may not be suitable for your use-case. Please do your own diligence.**
 
-**TODO - add gif**
+![](./docs/images/chat_the_nvca.gif)
 
 ### Creating a Collection
 
