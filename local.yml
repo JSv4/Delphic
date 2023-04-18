@@ -9,8 +9,8 @@ services:
     build:
       context: .
       dockerfile: ./compose/local/django/Dockerfile
-    image: chat_all_the_docs_local_django
-    container_name: chat_all_the_docs_local_django
+    image: delphic_local_django
+    container_name: delphic_local_django
     depends_on:
       - postgres
       - redis
@@ -23,6 +23,20 @@ services:
       - "8000:8000"
     command: /start
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ./Dockerfile
+    image: delphic_local_frontend
+    container_name: delphic_local_frontend
+    depends_on:
+      - django
+    env_file:
+      - ./frontend/.env
+    ports:
+      - "3000:3000"
+    profiles: ["fullstack"]
+
   postgres:
     build:
       context: .
@@ -34,22 +48,6 @@ services:
       - chat_all_the_docs_local_postgres_data_backups:/backups
     env_file:
       - ./.envs/.local/.postgres
-
-  docs:
-    image: chat_all_the_docs_local_docs
-    container_name: chat_all_the_docs_local_docs
-    build:
-      context: .
-      dockerfile: ./compose/local/docs/Dockerfile
-    env_file:
-      - ./.envs/.local/.django
-    volumes:
-      - ./docs:/docs:z
-      - ./config:/app/config:z
-      - ./chat_all_the_docs:/app/chat_all_the_docs:z
-    ports:
-      - "9000:9000"
-    command: /start-docs
 
   redis:
     image: redis:6

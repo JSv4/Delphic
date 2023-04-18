@@ -11,13 +11,25 @@ services:
       context: .
       dockerfile: ./compose/production/django/Dockerfile
 
-    image: chat_all_the_docs_production_django
+    image: delphic_django
     depends_on:
       - postgres
       - redis
     env_file:
       - ./.envs/.production/.django
       - ./.envs/.production/.postgres
+    command: /start
+
+  frontend: &frontend
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile
+
+    image: delphic_frontend
+    depends_on:
+      - django
+    env_file:
+      - ./.envs/.production/.frontend
     command: /start
 
   postgres:

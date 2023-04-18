@@ -1,81 +1,115 @@
-# Chat All The Docs
+# Delphic
 
-An orchestration framework for LlamaIndex to build and host multiple *separate* document collections and indices so you can get honed, insightful search results for target document collections.
+A simple framework to build and deploy LLM agents that can be used to analyze and manipulate text data from documents. 
 
 [![Built with Cookiecutter Django](https://img.shields.io/badge/built%20with-Cookiecutter%20Django-ff69b4.svg?logo=cookiecutter)](https://github.com/cookiecutter/cookiecutter-django/)
 [![Black code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
 License: MIT
 
-## Settings
+## Getting Setup
 
-Moved to [settings](http://cookiecutter-django.readthedocs.io/en/latest/settings.html).
+### Word of Caution / Note
 
-## Basic Commands
+The initial release of Delphic is based *solely* on OpenAI's API. We fully plan to support other large language models (LLMs), whether self-hosted or powered by third-party API. At the moment, however, as of April 2023, Open AI's API remains perhaps the most capable and easiest to deploy. Since this framework is based on LlamaIndex and is fully compatible with Langchain, it will be pretty easy to use other LLMs. **At the moment, however, your text WILL be processed with OpenAI, even if you're self-hosting this tool. If OpenAI's terms of service present a problem for you, we leave that to you to resolve. WE ARE NOT RESPONSIBLE FOR ANY ISSUES ARRISING FROM YOUR USE OF THIS TOOL AND OPENAI API.**
 
-### Setting Up Your Users
+### Getting Started Locally
 
--   To create a **normal user account**, just go to Sign Up and fill out the form. Once you submit it, you'll see a "Verify Your E-mail Address" page. Go to your console to see a simulated email verification message. Copy the link into your browser. Now the user's email should be verified and ready to go.
+#### Just Run the Application
 
--   To create a **superuser account**, use this command:
+The fastest way to get up and running is to clone this repo and then deploy the application locally. 
 
-        $ python manage.py createsuperuser
+You will need Docker and Docker Compose to follow these instructions. DigitalOcean, besides being an excellent cloud host, has some of the easiest-to-follow instructions on setting these up. Please check them out here or go to the Docker official instructions. 
 
-For convenience, you can keep your normal user logged in on Chrome and your superuser logged in on Firefox (or similar), so that you can see how the site behaves for both kinds of users.
+1. First, clone the repo:
 
-### Type checks
+```commandline
+git clone
 
-Running type checks with mypy:
-
-    $ mypy chat_all_the_docs
-
-### Test coverage
-
-To run the tests, check your test coverage, and generate an HTML coverage report:
-
-    $ coverage run -m pytest
-    $ coverage html
-    $ open htmlcov/index.html
-
-#### Running tests with pytest
-
-    $ pytest
-
-### Live reloading and Sass CSS compilation
-
-Moved to [Live reloading and SASS compilation](https://cookiecutter-django.readthedocs.io/en/latest/developing-locally.html#sass-compilation-live-reloading).
-
-### Celery
-
-This app comes with Celery.
-
-To run a celery worker:
-
-``` bash
-cd chat_all_the_docs
-celery -A config.celery_app worker -l info
 ```
 
-Please note: For Celery's import magic to work, it is important *where* the celery commands are run. If you are in the same folder with *manage.py*, you should be right.
+2. Then, change into the directory:
 
-To run [periodic tasks](https://docs.celeryq.dev/en/stable/userguide/periodic-tasks.html), you'll need to start the celery beat scheduler service. You can start it as a standalone process:
-
-``` bash
-cd chat_all_the_docs
-celery -A config.celery_app beat
+```commandline
+cd delphic
 ```
 
-or you can embed the beat service inside a worker with the `-B` option (not recommended for production use):
+3. **Don't forget to copy the sample env file to ./.envs/.local/ (you may need to be a super user / use sudo depending on your desired location)**
 
-``` bash
-cd chat_all_the_docs
-celery -A config.celery_app worker -B -l info
+```commandline
+mkdir -p ./.envs/.local/
+cp -a ./docs/sample_envs/local/.frontend ./frontend
+cp -a ./docs/sample_envs/local/.django ./.envs/.local
+cp -a ./docs/sample_envs/local/.postgres ./.envs/.local
 ```
 
-## Deployment
+4. And, next update your .django configuration (you'll probably want to edit `.postgres` as well to give your database user a unique password)
+   to include your OPENAI API KEY
 
-The following details how to deploy this application.
+5. Then, build the docker images:
 
-### Docker
+```commandline
+sudo docker-compose --profile fullstack -f local.yml build
+```
 
-See detailed [cookiecutter-django Docker documentation](http://cookiecutter-django.readthedocs.io/en/latest/deployment-with-docker.html).
+6. Finally, to launch the application, type:
+
+```commandline
+sudo docker-compose --profile fullstack -f local.yml up 
+```
+
+#### I Want to Develop / Modify the Frontend
+
+*If you want to actively develop the frontend, we suggest you **NOT** use the `--profile=fullstack` flag as every change will require a full container rebuild. Instead, instead of step #6 above, 
+
+5. First, launch the backend without the fullstack flag:
+
+```commandline
+sudo docker-compose -f local.yml up
+```
+
+6. Now, in a separate terminal, cd into the frontend directory and start a development server (**Note, we assume you have nvm installed. If you don't install it now**):
+
+```commandline
+cd frontend
+nvm use
+npm install
+npm run start
+```
+
+### Production Deploy
+
+This assumes you want to make the application available to the internet at some kind of fully qualified domain like delphic.opensource.legal. In order to do this, you need to update a couple configurations. 
+
+**TODO - insert documentation from OpenContracts**
+
+
+## Using the Application
+
+### Warning / Disclaimer
+
+At the moment, any user who is logged in will have full permissions. We plan to implement the more precise, roles-based access control module we developed for [OpenContracts](), but, for now
+be aware that anyone with any type of login credentials can create and delete collections. **Creating collections uses OpenAI credits / costs money**. 
+
+If you want to create a super user, you can follow the typical django command (from the repo root in your local filesystem): 
+
+```commandline
+sudo docker-compose - local.yml run django python manage.py createsuperuser
+```
+
+Once you have a super user, you can sign-in at `http://localhost:8000/admin`, and, from there, you can create additional users. If you make someone a superuser, they can create new users, delete users and basically do anything they want. See Django's user admin guide [here]().
+
+
+### Interacting with a Collection
+
+**WARNING - If you're using OpenAI as your LLM engine, any Collection interaction will use API credits / cost money. If you're using your own OpenAI API key, you've also accepted their terms of service which may not be suitable for your use-case. Please do your own diligence.**
+
+**TODO - add gif**
+
+### Creating a Collection
+
+**TODO - add gif**
+
+
+
+

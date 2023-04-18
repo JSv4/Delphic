@@ -331,7 +331,6 @@ chat_all_the_docs/media/
 
 .pytest_cache/
 .ipython/
-.env
 .envs/*
 !.envs/.local/
 

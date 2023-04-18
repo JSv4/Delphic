@@ -22,7 +22,7 @@ certificatesResolvers:
   letsencrypt:
     # https://docs.traefik.io/master/https/acme/#lets-encrypt
     acme:
-      email: "john-scrudato@chat.opensource.legal"
+      email: "john-scrudato@opensource.legal"
       storage: /etc/traefik/acme/acme.json
       # https://docs.traefik.io/master/https/acme/#httpchallenge
       httpChallenge:
@@ -30,13 +30,35 @@ certificatesResolvers:
 
 http:
   routers:
-    web-secure-router:
-      rule: "Host(`chat.opensource.legal`)"
+    api-web-secure-router:
+      rule: "Host(`delphic.opensource.legal/api`)"
       entryPoints:
         - web-secure
       middlewares:
         - csrf
       service: django
+      tls:
+        # https://docs.traefik.io/master/routing/routers/#certresolver
+        certResolver: letsencrypt
+
+    backend-web-secure-router:
+      rule: "Host(`delphic.opensource.legal/admin`)"
+      entryPoints:
+        - web-secure
+      middlewares:
+        - csrf
+      service: django
+      tls:
+        # https://docs.traefik.io/master/routing/routers/#certresolver
+        certResolver: letsencrypt
+
+    frontend-web-secure-router:
+      rule: "Host(`delphic.opensource.legal`)"
+      entryPoints:
+        - web-secure
+      middlewares:
+        - csrf
+      service: frontend
       tls:
         # https://docs.traefik.io/master/routing/routers/#certresolver
         certResolver: letsencrypt
@@ -62,6 +84,11 @@ http:
       loadBalancer:
         servers:
           - url: http://django:5000
+
+    frontend:
+      loadBalancer:
+        servers:
+          - url: http://frontend:3000
 
     flower:
       loadBalancer:

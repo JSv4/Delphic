@@ -1,0 +1,7 @@
+# PostgreSQL
+# ------------------------------------------------------------------------------
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_DB=cookietest
+POSTGRES_USER=bbQXlhtKFPTMHhhCaplnwWQMFFpkTjpP
+POSTGRES_PASSWORD=NtosG2tai5alVVma4A8tHtFAKEJnJ9JsR1o64cJ5lWGAucsPw9pJIEnzcUDPO5kA

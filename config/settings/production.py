@@ -51,6 +51,18 @@ SECURE_HSTS_PRELOAD = env.bool("DJANGO_SECURE_HSTS_PRELOAD", default=True)
 SECURE_CONTENT_TYPE_NOSNIFF = env.bool(
     "DJANGO_SECURE_CONTENT_TYPE_NOSNIFF", default=True
 )
+CORS_ALLOWED_ORIGINS = [
+    "https://delphi.opensource.legal",
+]
+CORS_ORIGIN_ALLOW_ALL = False
+
+# Content Security Policy Settings
+# CSP_IMG_SRC = ("'self'", "*")
+# CSP_DEFAULT_SRC = ("'self'",)
+# CSP_SCRIPT_SRC = ("'self'",)
+# CSP_FONT_SRC = ("'self'",)
+# CSP_STYLE_SRC = ("'self'", "'unsafe-inline'",)
+
 
 # EMAIL
 # ------------------------------------------------------------------------------
