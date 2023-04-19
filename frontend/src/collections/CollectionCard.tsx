@@ -48,18 +48,17 @@ export const CollectionCard = ({
         <Typography variant="body2">
           <Divider sx={{ marginTop: ".5rem", marginBottom: ".5rem" }} />
           <span>Documents:</span>
-          {collection.documents.length > 0 ? (
+          {collection.document_names.length > 0 ? (
             <Box
               sx={{
                 width: "100%",
                 maxHeight: 200,
-                maxWidth: 360,
                 bgcolor: "background.paper",
                 overflowY: "auto",
               }}
             >
               <List>
-                {collection.documents.map((doc_name, index) => (
+                {collection.document_names.map((doc_name, index) => (
                   <ListItem key={`${doc_name}_preview_${index}`} disablePadding>
                     <ListItemIcon>
                       <FilePresentIcon />

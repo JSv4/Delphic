@@ -35,7 +35,7 @@ export interface CollectionModelSchema {
   status: string;
   created: string;
   modified: string;
-  documents: string[];
+  document_names: string[];
 }
 
 export interface CollectionQueryInput {
