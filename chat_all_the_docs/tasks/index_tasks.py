@@ -3,10 +3,19 @@ import uuid
 import tempfile
 from config import celery_app
 from pathlib import Path
+from django.conf import settings
 from django.core.files import File
 from chat_all_the_docs.indexes.models import Collection
+from llama_index import (
+    GPTKeywordTableIndex,
+    SimpleDirectoryReader,
+    LLMPredictor,
+    ServiceContext
+)
+from langchain import OpenAI
 
 from llama_index import GPTSimpleVectorIndex, download_loader
+
 
 
 @celery_app.task
@@ -55,7 +64,12 @@ def create_index(collection_id):
             # index = GPTSimpleVectorIndex(documents)
 
             # documents = SimpleDirectoryReader(str(tempdir_path)).load_data()
-            index = GPTSimpleVectorIndex.from_documents(documents)
+            llm_predictor = LLMPredictor(llm=OpenAI(temperature=0, model_name=settings.MODEL_NAME, max_tokens=settings.MAX_TOKENS))
+            service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
+
+            # build index
+            index = GPTSimpleVectorIndex.from_documents(documents, service_context=service_context)
+
             print(f"Index: {index}")
             index_str = index.save_to_string()
 

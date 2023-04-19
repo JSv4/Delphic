@@ -1,13 +1,17 @@
-import os
 import textwrap
 from pathlib import Path
 from typing import Union
 
-from django.core.files.storage import default_storage
 from django.conf import settings
 from llama_index import GPTSimpleVectorIndex
-import shutil
 
+from llama_index import (
+    GPTKeywordTableIndex,
+    SimpleDirectoryReader,
+    LLMPredictor,
+    ServiceContext
+)
+from langchain import OpenAI
 
 from chat_all_the_docs.indexes.models import Collection
 
@@ -57,8 +61,13 @@ async def load_collection_model(collection_id: Union[str, int]) -> GPTSimpleVect
                 with cache_file_path.open('w+', encoding='utf-8') as cache_file:
                     cache_file.write(model_file.read().decode('utf-8'))
 
+        # define LLM
+        llm_predictor = LLMPredictor(llm=OpenAI(temperature=0, model_name=settings.MODEL_NAME, max_tokens=settings.MAX_TOKENS))
+        service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
+
         # Call GPTSimpleVectorIndex.load_from_disk
-        index = GPTSimpleVectorIndex.load_from_disk(cache_file_path)
+        index = GPTKeywordTableIndex.load_from_disk(cache_file_path, service_context=service_context)
+
 
     else:
         raise ValueError("No model exists for this collection!")

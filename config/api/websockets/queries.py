@@ -1,6 +1,5 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
-from urllib.parse import parse_qs
 
 from chat_all_the_docs.utils.collections import load_collection_model
 from chat_all_the_docs.utils.paths import extract_connection_id
@@ -12,6 +11,8 @@ class CollectionQueryConsumer(AsyncWebsocketConsumer):
         try:
             self.collection_id = extract_connection_id(self.scope['path'])
             print(f"Connect to collection model: {self.collection_id}")
+            # define LLM
+
             self.index = await load_collection_model(self.collection_id)
             print(f"Index loaded: {self.index}")
             await self.accept()

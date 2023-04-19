@@ -134,7 +134,6 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-
 # STATIC
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#static-root
@@ -288,7 +287,7 @@ LOGGING = {
     "formatters": {
         "verbose": {
             "format": "%(levelname)s %(asctime)s %(module)s "
-            "%(process)d %(thread)d %(message)s"
+                      "%(process)d %(thread)d %(message)s"
         }
     },
     "handlers": {
@@ -353,7 +352,6 @@ SOCIALACCOUNT_ADAPTER = "chat_all_the_docs.users.adapters.SocialAccountAdapter"
 # https://django-allauth.readthedocs.io/en/latest/forms.html
 SOCIALACCOUNT_FORMS = {"signup": "chat_all_the_docs.users.forms.UserSocialSignupForm"}
 
-
 # API Configuration
 # ------------------------------------------------------------------------------
 # If OPEN_ACCESS_MODE is True, no API_KEY is checked (for use in local deploys or on VPC)
@@ -370,3 +368,8 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+# NLP Config
+MODEL_NAME = env("MODEL_NAME")
+MAX_TOKENS = env.int("MAX_TOKENS", 512)
+

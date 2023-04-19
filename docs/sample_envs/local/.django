@@ -16,3 +16,5 @@ CELERY_FLOWER_PASSWORD=XdBJp2EnHZ5xQc2r3FSYjmTGbHiJp3wf5yWJnKloHwsrSLC3qfdoF4naZ
 # NLP / LLM
 # -----------------------------------------------------------------------------
 OPENAI_API_KEY=""
+MODEL_NAME=text-davinci-003
+MAX_TOKENS=512
