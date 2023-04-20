@@ -1,15 +1,13 @@
 import logging
 
+from asgiref.sync import sync_to_async
 from ninja.security import APIKeyHeader
 from rest_framework_api_key.models import APIKey
-from asgiref.sync import sync_to_async
-
 
 logger = logging.getLogger(__name__)
 
 
 class NinjaApiKeyAuth(APIKeyHeader):
-
     param_name = "AUTHORIZATION"
 
     # def authenticate(self, request, key):

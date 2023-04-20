@@ -107,7 +107,7 @@ export const LoginForm = ({ onLogin }: LoginFormProps) => {
             src={os_logo}
             alt="Your image"
             variant="rounded"
-            
+
           />
           <Divider />
           <Box sx={{ marginTop: 2 }}>
@@ -130,7 +130,7 @@ export const LoginForm = ({ onLogin }: LoginFormProps) => {
             </ErrorTypography>
           )}
           </Box>
-          
+
         </CardContent>
         <CardActions>
           <ButtonWrapper

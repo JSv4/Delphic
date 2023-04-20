@@ -41,4 +41,3 @@ export const LoadingMessageBox = ({message}: {message: string}) => {
       </GradientBackgroundBox>
     );
   };
-  

@@ -18,4 +18,3 @@ export const ChatCaption = ({ caption }: { caption: string }) => {
       </Box>
     );
   };
-  
