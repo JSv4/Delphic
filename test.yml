@@ -73,6 +73,7 @@ services:
     ports: []
     command: /start-celerybeat
 
+
   flower:
     <<: *django
     image: chat_all_the_docs_local_flower
