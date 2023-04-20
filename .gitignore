@@ -334,7 +334,7 @@ chat_all_the_docs/media/
 .envs/.local
 .envs/.production
 !.envs/.local/
-
+delphic/media/*
 
 ### Models for Question Answering
 cache/*
