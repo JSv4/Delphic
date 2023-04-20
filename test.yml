@@ -17,8 +17,8 @@ services:
     volumes:
       - .:/app:z
     env_file:
-      - ./.envs/.local/.django
-      - ./.envs/.local/.postgres
+      - ./.envs/.test/.django
+      - ./.envs/.test/.postgres
     ports:
       - "8000:8000"
     command: /start
@@ -47,7 +47,7 @@ services:
       - chat_all_the_docs_local_postgres_data:/var/lib/postgresql/data
       - chat_all_the_docs_local_postgres_data_backups:/backups
     env_file:
-      - ./.envs/.local/.postgres
+      - ./.envs/.test/.postgres
 
   redis:
     image: redis:6
