@@ -32,9 +32,10 @@ export interface CollectionModelSchema {
   id: number;
   title: string;
   description: string;
-  status: string;
+  status: CollectionStatus;
   created: string;
   modified: string;
+  has_model: boolean;
   document_names: string[];
 }
 
@@ -52,4 +53,11 @@ export enum UploadStatus {
   SUCCESS = "SUCCESS",
   FAILED = "FAILED",
   UPLOADING = "UPLOADING",
+}
+
+export enum CollectionStatus {
+  COMPLETE = "COMPLETE",
+  RUNNING = "RUNNING",
+  QUEUED = "QUEUED",
+  ERROR = "ERROR",
 }

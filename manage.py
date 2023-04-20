@@ -24,8 +24,8 @@ if __name__ == "__main__":
         raise
 
     # This allows easy placement of apps within the interior
-    # chat_all_the_docs directory.
+    # delphic directory.
     current_path = Path(__file__).parent.resolve()
-    sys.path.append(str(current_path / "chat_all_the_docs"))
+    sys.path.append(str(current_path / "delphic"))
 
     execute_from_command_line(sys.argv)

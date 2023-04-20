@@ -18,8 +18,9 @@ import Avatar from "@mui/material/Avatar";
 import MenuIcon from "@mui/icons-material/Menu";
 import LogoutIcon from "@mui/icons-material/LogoutOutlined";
 import Toolbar from "@mui/material/Toolbar";
+import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
-import { CollectionModelSchema } from "../types";
+import { CollectionModelSchema, CollectionStatus } from "../types";
 import { getMyCollections } from "../api/collections";
 import ChatView from "../chat/ChatView";
 import { InfoMessageBox } from "../widgets/InfoMessageBox";
@@ -38,6 +39,7 @@ interface Props {
   showNewCollectionModal: boolean;
   setSelectedCollection: (arg0: CollectionModelSchema) => void | undefined;
   onAddNewCollection: () => void | undefined;
+  setAuthToken: (key: string) => void | undefined;
   authToken: string;
   window?: () => Window;
 }
@@ -48,6 +50,7 @@ export default function DrawerLayout2(props: Props) {
     showNewCollectionModal,
     setSelectedCollection,
     onAddNewCollection,
+    setAuthToken,
     authToken,
   } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -85,6 +88,23 @@ export default function DrawerLayout2(props: Props) {
     fetchCollections();
   }, []);
 
+  // Set up an interval to long-poll for collection statuses IF any collection is queued or running.
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (
+      collections.some(
+        (collection) =>
+          collection.status === CollectionStatus.RUNNING ||
+          collection.status === CollectionStatus.QUEUED
+      )
+    ) {
+      interval = setInterval(() => {
+        fetchCollections();
+      }, 15000);
+    }
+    return () => clearInterval(interval);
+  }, [collections]);
+
   const drawer = (
     <div>
       <Toolbar />
@@ -114,6 +134,10 @@ export default function DrawerLayout2(props: Props) {
             <div key={collection.id}>
               <ListItem disablePadding>
                 <ListItemButton
+                  disabled={
+                    collection.status !== CollectionStatus.COMPLETE ||
+                    !collection.has_model
+                  }
                   onClick={() => handleCollectionClick(collection)}
                   selected={
                     selectedCollection &&
@@ -121,6 +145,12 @@ export default function DrawerLayout2(props: Props) {
                   }
                 >
                   <ListItemText primary={collection.title} />
+                  {collection.status === CollectionStatus.RUNNING ? (
+                    <CircularProgress
+                      size={24}
+                      style={{ position: "absolute", right: 16 }}
+                    />
+                  ) : null}
                 </ListItemButton>
               </ListItem>
             </div>
@@ -131,7 +161,7 @@ export default function DrawerLayout2(props: Props) {
       <List>
         {authToken ? (
           <ListItem key="Logout" disablePadding>
-            <ListItemButton>
+            <ListItemButton onClick={() => setAuthToken("")}>
               <ListItemIcon>
                 <LogoutIcon />
               </ListItemIcon>

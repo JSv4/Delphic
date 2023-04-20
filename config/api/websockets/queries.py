@@ -1,15 +1,16 @@
 import json
+
 from channels.generic.websocket import AsyncWebsocketConsumer
 
-from chat_all_the_docs.utils.collections import load_collection_model
-from chat_all_the_docs.utils.paths import extract_connection_id
+from delphic.utils.collections import load_collection_model
+from delphic.utils.paths import extract_connection_id
 
 
 class CollectionQueryConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         print("Connecting...")  # Debugging print statement
         try:
-            self.collection_id = extract_connection_id(self.scope['path'])
+            self.collection_id = extract_connection_id(self.scope["path"])
             print(f"Connect to collection model: {self.collection_id}")
             # define LLM
 
@@ -23,7 +24,6 @@ class CollectionQueryConsumer(AsyncWebsocketConsumer):
             await self.close(code=4000)
         except Exception as e:
             print(f"Error during connection: {e}")  # Debugging print statement
-
 
     async def disconnect(self, close_code):
         pass
@@ -39,7 +39,7 @@ class CollectionQueryConsumer(AsyncWebsocketConsumer):
 
             {query_str}
             """
-            response = self.index.query(query_str)
+            response = self.index.query(modified_query_str)
 
             # Format the response as markdown
             markdown_response = f"## Response\n\n{response}\n\n"
@@ -52,4 +52,6 @@ class CollectionQueryConsumer(AsyncWebsocketConsumer):
 
             await self.send(json.dumps({"response": formatted_response}, indent=4))
         else:
-            await self.send(json.dumps({"error": "No index loaded for this connection."}, indent=4))
+            await self.send(
+                json.dumps({"error": "No index loaded for this connection."}, indent=4)
+            )
