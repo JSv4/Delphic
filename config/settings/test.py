@@ -28,5 +28,7 @@ EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
 # DEBUGGING FOR TEMPLATES
 # ------------------------------------------------------------------------------
 TEMPLATES[0]["OPTIONS"]["debug"] = True  # type: ignore # noqa: F405
+
 # Your stuff...
 # ------------------------------------------------------------------------------
+ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1"]
