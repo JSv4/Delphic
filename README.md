@@ -1,6 +1,6 @@
 # Delphic
 
-![](./docs/images/Delphic Header.png)
+![](./docs/images/Delphic_Header.png)
 
 A simple framework to use LlamaIndex to build and deploy LLM agents that can be used to analyze and manipulate text data from documents.
 
