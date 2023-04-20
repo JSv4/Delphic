@@ -2,6 +2,7 @@
 # ------------------------------------------------------------------------------
 USE_DOCKER=yes
 IPYTHONDIR=/app/.ipython
+
 # Redis
 # ------------------------------------------------------------------------------
 REDIS_URL=redis://redis:6379/0
@@ -12,6 +13,10 @@ REDIS_URL=redis://redis:6379/0
 # Flower
 CELERY_FLOWER_USER=AbFgrzUdIweDSBYEiGuhipavkoTonmNo
 CELERY_FLOWER_PASSWORD=XdBJp2EnHZ5xQc2r3FSYjmTGbHiJp3wf5yWJnKloHwsrSLC3qfdoF4naZfwuZYBU
+
+# DJANGO SETTINGS
+# -----------------------------------------------------------------------------
+DJANGO_SETTINGS_MODULE=config.settings.test
 
 # NLP / LLM
 # -----------------------------------------------------------------------------

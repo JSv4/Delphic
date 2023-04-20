@@ -1,4 +1,5 @@
-frontend
+.git
+.pytest_cache
 .editorconfig
 .gitattributes
 .github
@@ -8,5 +9,7 @@ frontend
 .pre-commit-config.yaml
 .readthedocs.yml
 .travis.yml
+delphic/media/*
 venv
-.git
+docs
+frontend
