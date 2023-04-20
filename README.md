@@ -150,7 +150,7 @@ Once you have a super user, you can sign-in at `http://localhost:8000/admin`, an
 
 **WARNING - If you're using OpenAI as your LLM engine, any Collection interaction will use API credits / cost money. If you're using your own OpenAI API key, you've also accepted their terms of service which may not be suitable for your use-case. Please do your own diligence.**
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/UvFPnMWODrE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+https://user-images.githubusercontent.com/5049984/233236432-aa4980b6-a510-42f3-887a-81485c9644e6.mp4
 
 ### Creating a Collection
 
