@@ -7,8 +7,8 @@ import environ
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 
-# chat_all_the_docs/
-APPS_DIR = BASE_DIR / "chat_all_the_docs"
+# delphic/
+APPS_DIR = BASE_DIR / "delphic"
 env = environ.Env()
 
 READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=False)
@@ -75,8 +75,8 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    "chat_all_the_docs.indexes",
-    "chat_all_the_docs.users",
+    "delphic.indexes",
+    "delphic.users",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -84,7 +84,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # MIGRATIONS
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#migration-modules
-MIGRATION_MODULES = {"sites": "chat_all_the_docs.contrib.sites.migrations"}
+MIGRATION_MODULES = {"sites": "delphic.contrib.sites.migrations"}
 
 # AUTHENTICATION
 # ------------------------------------------------------------------------------
@@ -155,9 +155,13 @@ if not USE_AWS:
     # ------------------------------------------------------------------------------
     # https://docs.djangoproject.com/en/dev/ref/settings/#media-root
     print(f"APPS DIR: {APPS_DIR}")
+
+    # MEDIA
+    # ------------------------------------------------------------------------------
+    # https://docs.djangoproject.com/en/dev/ref/settings/#media-root
     MEDIA_ROOT = str(APPS_DIR / "media")
     # https://docs.djangoproject.com/en/dev/ref/settings/#media-url
-    MEDIA_URL = "../media/"
+    MEDIA_URL = "/media/"
 
 else:
     # STORAGES
@@ -195,11 +199,11 @@ else:
 
     # STATIC
     # ------------------------
-    STATICFILES_STORAGE = "chat_all_the_docs.utils.storages.StaticRootS3Boto3Storage"
+    STATICFILES_STORAGE = "delphic.utils.storages.StaticRootS3Boto3Storage"
     STATIC_URL = f"https://{aws_s3_domain}/static/"
     # MEDIA
     # ------------------------------------------------------------------------------
-    DEFAULT_FILE_STORAGE = "chat_all_the_docs.utils.storages.MediaRootS3Boto3Storage"
+    DEFAULT_FILE_STORAGE = "delphic.utils.storages.MediaRootS3Boto3Storage"
     MEDIA_URL = f"https://{aws_s3_domain}/media/"
     MEDIA_ROOT = str(APPS_DIR / "media")
 
@@ -287,7 +291,7 @@ LOGGING = {
     "formatters": {
         "verbose": {
             "format": "%(levelname)s %(asctime)s %(module)s "
-                      "%(process)d %(thread)d %(message)s"
+            "%(process)d %(thread)d %(message)s"
         }
     },
     "handlers": {
@@ -344,13 +348,13 @@ ACCOUNT_EMAIL_REQUIRED = True
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
-ACCOUNT_ADAPTER = "chat_all_the_docs.users.adapters.AccountAdapter"
+ACCOUNT_ADAPTER = "delphic.users.adapters.AccountAdapter"
 # https://django-allauth.readthedocs.io/en/latest/forms.html
-ACCOUNT_FORMS = {"signup": "chat_all_the_docs.users.forms.UserSignupForm"}
+ACCOUNT_FORMS = {"signup": "delphic.users.forms.UserSignupForm"}
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
-SOCIALACCOUNT_ADAPTER = "chat_all_the_docs.users.adapters.SocialAccountAdapter"
+SOCIALACCOUNT_ADAPTER = "delphic.users.adapters.SocialAccountAdapter"
 # https://django-allauth.readthedocs.io/en/latest/forms.html
-SOCIALACCOUNT_FORMS = {"signup": "chat_all_the_docs.users.forms.UserSocialSignupForm"}
+SOCIALACCOUNT_FORMS = {"signup": "delphic.users.forms.UserSocialSignupForm"}
 
 # API Configuration
 # ------------------------------------------------------------------------------
@@ -361,10 +365,10 @@ OPEN_ACCESS_MODE = env.bool("OPEN_ACCESS_MODE", False)
 # ------------------------------------------------------------------------------
 ASGI_APPLICATION = "config.asgi.application"
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('redis', 6379)],  # Adjust this to match your Redis configuration
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],  # Adjust this to match your Redis configuration
         },
     },
 }
@@ -372,4 +376,3 @@ CHANNEL_LAYERS = {
 # NLP Config
 MODEL_NAME = env("MODEL_NAME")
 MAX_TOKENS = env.int("MAX_TOKENS", 512)
-

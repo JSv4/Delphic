@@ -54,6 +54,6 @@ export const ChatMessageLoading: React.FC = () => {
       <Dot delay={0.2}>.</Dot>
       <Dot delay={0.4}>.</Dot>
     </Box>
-    
+
   );
 };

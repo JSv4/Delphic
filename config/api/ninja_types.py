@@ -1,5 +1,4 @@
-from typing import List, Optional
-from ninja import Router, Schema, UploadedFile
+from ninja import Schema
 
 
 class CollectionStatusEnum(str):
@@ -11,7 +10,7 @@ class CollectionStatusEnum(str):
 
 class CollectionIn(Schema):
     title: str
-    description: Optional[str]
+    description: str | None
 
 
 class CollectionModelSchema(Schema):
@@ -23,7 +22,8 @@ class CollectionModelSchema(Schema):
     modified: str
     processing: bool
     has_model: bool
-    document_names: List[str]
+    document_names: list[str]
+
 
 class CollectionQueryInput(Schema):
     collection_id: int

@@ -1,33 +1,35 @@
-import httpx
 import logging
-from django.test import TransactionTestCase, AsyncClient
-from django.contrib.auth import get_user_model
+
+import httpx
 from asgiref.sync import sync_to_async
+from django.contrib.auth import get_user_model
+from django.test import AsyncClient, TransactionTestCase
 from rest_framework_api_key.models import APIKey
-from config.api.endpoints import collections_router
+
 from config import asgi
-from chat_all_the_docs.indexes.models import Collection, Document
+from config.api.endpoints import collections_router
+from delphic.indexes.models import Collection, Document
 
 User = get_user_model()
 
 logging.basicConfig(
     format="%(levelname)s [%(asctime)s] %(name)s - %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
-    level=logging.DEBUG
+    level=logging.DEBUG,
 )
 
+
 class CollectionTestCase(TransactionTestCase):
-
     # async def async_setup_method(self):
-        # Perform your asynchronous setup tasks here
+    # Perform your asynchronous setup tasks here
 
-        # # Use ThreadPoolExecutor to run the synchronous function in a separate thread
-        # with ThreadPoolExecutor(max_workers=1) as executor:
-        #     api_key, request_key = await asyncio.get_event_loop().run_in_executor(
-        #         executor, lambda: APIKey.objects.create_key(name="my-test-service")
-        #     )
-        #
-        # self.api_key = request_key
+    # # Use ThreadPoolExecutor to run the synchronous function in a separate thread
+    # with ThreadPoolExecutor(max_workers=1) as executor:
+    #     api_key, request_key = await asyncio.get_event_loop().run_in_executor(
+    #         executor, lambda: APIKey.objects.create_key(name="my-test-service")
+    #     )
+    #
+    # self.api_key = request_key
 
     @sync_to_async
     def get_request_key(self):
@@ -35,14 +37,15 @@ class CollectionTestCase(TransactionTestCase):
         return request_key
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.user = User.objects.create_user(
+            username="testuser", password="testpassword"
+        )
         self.client = AsyncClient(collections_router)
         # async_to_sync(self.async_setup_method)()
         # api_key, request_key = APIKey.objects.create_key(name="my-test-service")
         # self.api_key = request_key
 
     async def test_create_collection(self):
-
         request_key = await self.get_request_key()
 
         print(f"Request key: {request_key}")
@@ -53,7 +56,6 @@ class CollectionTestCase(TransactionTestCase):
         collection_data = {
             "title": "Test Collection",
             "description": "A test collection",
-            "status": "COMPLETE",
         }
 
         # Send the request
@@ -61,12 +63,14 @@ class CollectionTestCase(TransactionTestCase):
             "Authorization": f"{request_key}",
         }
         files = [
-            ('files', ('document1.txt', file_content, 'text/plain')),
-            ('files', ('document2.txt', file_content, 'text/plain')),
+            ("files", ("document1.txt", file_content, "text/plain")),
+            ("files", ("document2.txt", file_content, "text/plain")),
         ]
         # response = await self.client.post("/api/collections/create", data = json.dumps(collection_data),
         #                                   **headers)
-        async with httpx.AsyncClient(app=asgi.application, base_url="http://localhost:8000") as client:
+        async with httpx.AsyncClient(
+            app=asgi.application, base_url="http://localhost:8000"
+        ) as client:
             response = await client.post(
                 "/api/collections/create",
                 data=collection_data,
@@ -82,11 +86,13 @@ class CollectionTestCase(TransactionTestCase):
         response_data = response.json()
         self.assertEqual(response_data["title"], collection_data["title"])
         self.assertEqual(response_data["description"], collection_data["description"])
-        self.assertEqual(response_data["status"], collection_data["status"])
+        self.assertEqual(response_data["status"], "QUEUED")
 
         # Check if the documents are saved correctly
         collection_instance = await Collection.objects.aget(id=response_data["id"])
-        collection_doc_count = await sync_to_async(collection_instance.documents.count)()
+        collection_doc_count = await sync_to_async(
+            collection_instance.documents.count
+        )()
         self.assertEqual(collection_doc_count, 2)
 
         async for document in collection_instance.documents.all():
@@ -119,9 +125,11 @@ class CollectionTestCase(TransactionTestCase):
             "description": "A test file",
         }
         files = [
-            ('file', file),
+            ("file", file),
         ]
-        async with httpx.AsyncClient(app=asgi.application, base_url="http://localhost:8000") as client:
+        async with httpx.AsyncClient(
+            app=asgi.application, base_url="http://localhost:8000"
+        ) as client:
             response = await client.post(
                 f"/api/collections/{collection.id}/add_file",
                 data=data,
@@ -132,13 +140,20 @@ class CollectionTestCase(TransactionTestCase):
         # Check if the response is successful and the created document is as expected
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
-        self.assertEqual(response_data["message"], f"Added file {file_name} to collection {collection.id}")
+        self.assertEqual(
+            response_data["message"],
+            f"Added file {file_name} to collection {collection.id}",
+        )
 
         # Check if the document is saved correctly
         collection_instance = await Collection.objects.aget(id=collection.id)
-        collection_doc_count = await sync_to_async(collection_instance.documents.count)()
+        collection_doc_count = await sync_to_async(
+            collection_instance.documents.count
+        )()
         self.assertEqual(collection_doc_count, 1)
-        document = await sync_to_async(Document.objects.get)(collection=collection_instance)
+        document = await sync_to_async(Document.objects.get)(
+            collection=collection_instance
+        )
         self.assertEqual(document.file.name, f"documents/{file_name}")
         self.assertEqual(document.description, data["description"])
 

@@ -5,8 +5,8 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
-from config.api.endpoints import api
 
+from config.api.endpoints import api
 
 urlpatterns = [
     path("api/", api.urls),

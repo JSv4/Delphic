@@ -1,10 +1,11 @@
-import jwt
 import logging
-from django.conf import settings
-from channels.middleware import BaseMiddleware
+from urllib.parse import parse_qsl
+
+import jwt
 from channels.db import database_sync_to_async
+from channels.middleware import BaseMiddleware
+from django.conf import settings
 from django.contrib.auth import get_user_model
-from urllib.parse import parse_qs, parse_qsl
 
 logger = logging.getLogger(__name__)
 
@@ -12,6 +13,7 @@ logger = logging.getLogger(__name__)
 @database_sync_to_async
 def get_user_from_token(token):
     from ninja_jwt.tokens import UntypedToken
+
     User = get_user_model()
 
     print(f"Analyze token: {token}")
@@ -27,7 +29,6 @@ def get_user_from_token(token):
 
 
 class TokenAuthMiddleware(BaseMiddleware):
-
     def __init__(self, app):
         # Store the ASGI application we were passed
         self.app = app
@@ -47,7 +48,9 @@ class TokenAuthMiddleware(BaseMiddleware):
 
             # Add this line to set an error message in the scope
             scope["error_msg"] = error_msg
-            await send({"type": "websocket.close", "code": 1000, "reason": "Invalid token."})
+            await send(
+                {"type": "websocket.close", "code": 1000, "reason": "Invalid token."}
+            )
 
             return await self.app(scope, receive, send)
 

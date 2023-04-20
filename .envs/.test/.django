@@ -1,0 +1,25 @@
+# General
+# ------------------------------------------------------------------------------
+USE_DOCKER=yes
+IPYTHONDIR=/app/.ipython
+
+# Redis
+# ------------------------------------------------------------------------------
+REDIS_URL=redis://redis:6379/0
+
+# Celery
+# ------------------------------------------------------------------------------
+
+# Flower
+CELERY_FLOWER_USER=AbFgrzUdIweDSBYEiGuhipavkoTonmNo
+CELERY_FLOWER_PASSWORD=XdBJp2EnHZ5xQc2r3FSYjmTGbHiJp3wf5yWJnKloHwsrSLC3qfdoF4naZfwuZYBU
+
+# DJANGO SETTINGS
+# -----------------------------------------------------------------------------
+DJANGO_SETTINGS_MODULE=config.settings.test
+
+# NLP / LLM
+# -----------------------------------------------------------------------------
+OPENAI_API_KEY="1234"
+MODEL_NAME=text-davinci-003
+MAX_TOKENS=2048

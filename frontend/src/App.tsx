@@ -38,6 +38,7 @@ const App = () => {
       {loggedIn && authToken ? (
         <DrawerLayout2
           authToken={authToken}
+          setAuthToken={setAuthToken}
           onAddNewCollection={() => setShowNewCollectionModal(true)}
           selectedCollection={selectedCollection}
           setSelectedCollection={setSelectedCollection}
