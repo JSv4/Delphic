@@ -20,7 +20,7 @@ django-redis==5.2.0  # https://github.com/jazzband/django-redis
 # API-Related
 # ------------------------------------------------------------------------------
 django-ninja==0.21.0  # https://github.com/vitalik/django-ninja
-djangorestframework==3.13.1  # https://github.com/encode/django-rest-framework
+djangorestframework==3.14.0  # https://github.com/encode/django-rest-framework
 djangorestframework-api-key==2.*  # https://github.com/florimondmanca/djangorestframework-api-key
 django-ninja-jwt==5.2.5  # https://github.com/eadwinCode/django-ninja-jwt
 django-ninja-extra
