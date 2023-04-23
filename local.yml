@@ -1,8 +1,8 @@
 version: '3'
 
 volumes:
-  chat_all_the_docs_local_postgres_data: {}
-  chat_all_the_docs_local_postgres_data_backups: {}
+  delphic_local_postgres_data: {}
+  delphic_local_postgres_data_backups: {}
 
 services:
   django: &django
@@ -41,22 +41,22 @@ services:
     build:
       context: .
       dockerfile: ./compose/production/postgres/Dockerfile
-    image: chat_all_the_docs_production_postgres
-    container_name: chat_all_the_docs_local_postgres
+    image: delphic_production_postgres
+    container_name: delphic_local_postgres
     volumes:
-      - chat_all_the_docs_local_postgres_data:/var/lib/postgresql/data
-      - chat_all_the_docs_local_postgres_data_backups:/backups
+      - delphic_local_postgres_data:/var/lib/postgresql/data
+      - delphic_local_postgres_data_backups:/backups
     env_file:
       - ./.envs/.local/.postgres
 
   redis:
     image: redis:6
-    container_name: chat_all_the_docs_local_redis
+    container_name: delphic_local_redis
 
   celeryworker:
     <<: *django
-    image: chat_all_the_docs_local_celeryworker
-    container_name: chat_all_the_docs_local_celeryworker
+    image: delphic_local_celeryworker
+    container_name: delphic_local_celeryworker
     depends_on:
       - redis
       - postgres
@@ -65,8 +65,8 @@ services:
 
   celerybeat:
     <<: *django
-    image: chat_all_the_docs_local_celerybeat
-    container_name: chat_all_the_docs_local_celerybeat
+    image: delphic_local_celerybeat
+    container_name: delphic_local_celerybeat
     depends_on:
       - redis
       - postgres
@@ -75,8 +75,8 @@ services:
 
   flower:
     <<: *django
-    image: chat_all_the_docs_local_flower
-    container_name: chat_all_the_docs_local_flower
+    image: delphic_local_flower
+    container_name: delphic_local_flower
     ports:
       - "5555:5555"
     command: /start-flower
