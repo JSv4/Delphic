@@ -63,7 +63,7 @@ Go to `localhost:3000` to see the frontend.
 
 #### I Want to Develop / Modify the Frontend
 
-If you want to actively develop the frontend, we suggest you **NOT** use the `--profile=fullstack` flag as every change will require a full container rebuild. 
+If you want to actively develop the frontend, we suggest you **NOT** use the `--profile=fullstack` flag as every change will require a full container rebuild.
 Instead, see the [Development Environment](#development-environment)  instead of step #5 above,
 
 ### Production Deploy
@@ -146,9 +146,9 @@ sudo docker-compose -f local.yml run django python manage.py test
 
 On the frontend, we're using node v18.15.0. We assume you're using nvm. We don't have any frontend tests yet (sorry).
 
-### Setup and Launch Node Development Server 
+### Setup and Launch Node Development Server
 
-Cd into the frontend directory, install your frontend dependencies and start a development server 
+Cd into the frontend directory, install your frontend dependencies and start a development server
 (**Note, we assume you have nvm installed. If you don't install it now**):
 
 ```commandline
@@ -159,7 +159,7 @@ yarn install
 ```
 
 Typing `yarn start` will bring up your frontend development server at `http://localhost:3000`. You still need
-to launch the backend in order for it to work properly. 
+to launch the backend in order for it to work properly.
 
 ### Run Backend Compose Stack Without `fullstack` profile flag
 
