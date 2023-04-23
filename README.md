@@ -27,7 +27,6 @@ You will need Docker and Docker Compose to follow these instructions. DigitalOce
 
 ```commandline
 git clone
-
 ```
 
 2. Then, change into the directory:
@@ -64,31 +63,8 @@ Go to `localhost:3000` to see the frontend.
 
 #### I Want to Develop / Modify the Frontend
 
-*If you want to actively develop the frontend, we suggest you **NOT** use the `--profile=fullstack` flag as every change will require a full container rebuild. Instead, instead of step #5 above,
-
-5. First, launch the backend without the fullstack flag:
-
-```commandline
-sudo docker-compose -f local.yml up
-```
-
-6. In one terminal window, launch your backend:
-
-```commandline
-sudo docker-compose -f local.yml up
-```
-
-7. Now, in a separate terminal, cd into the frontend directory and start a development server (**Note, we assume you have nvm installed. If you don't install it now**):
-
-```commandline
-cd frontend
-nvm use
-npm install yarn
-yarn install
-yarn run start
-```
-
-Go to `localhost:3000` to see the frontend.
+If you want to actively develop the frontend, we suggest you **NOT** use the `--profile=fullstack` flag as every change will require a full container rebuild.
+Instead, see the [Development Environment](#development-environment)  instead of step #5 above,
 
 ### Production Deploy
 
@@ -96,16 +72,58 @@ This assumes you want to make the application available to the internet at some 
 
 **TODO - insert documentation**
 
-### Development
+# Using the Application
+
+## Setup Users
+
+In order to actually use the application (at the moment, we intend to make it possible to share certain models with unauthenticated users), you need a login. You can use either a superuser or non-superuser. In either case, someone needs to first create a superuser using the console:
+
+Why set up a Django superuser? A Django superuser has all the permissions in the application and can manage all aspects of the system, including creating, modifying, and deleting users, collections, and other data. Setting up a superuser allows you to fully control and manage the application.
+
+### Warning / Disclaimer
+
+**At the moment, any user who is logged in will have full permissions. We plan to implement the more precise, roles-based access control module we developed for [OpenContracts](https://github.com/JSv4/OpenContracts), but, for now
+be aware that anyone with any type of login credentials can create and delete collections. **Creating collections uses OpenAI credits / costs money**
+
+### First, Setup a Django superuser:
+
+1. Run the following command to create a superuser:
+
+```
+sudo docker-compose -f local.yml run django python manage.py createsuperuser
+```
+
+2. You will be prompted to provide a username, email address, and password for the superuser. Enter the required information.
+
+### Second (if desired), Setup Additional Users
+
+Start your Delphic application locally following the deployment instructions.
+
+1. Visit the Django admin interface by navigating to http://localhost:8000/admin in your browser.
+2. Log in with the superuser credentials you created earlier.
+3. Click on the "Users" link in the “Users” section.
+4. Click on the “Add User +” button in the top right corner.
+5. Enter the required information for the new user, such as username and password. Click “Save” to create the user.
+6. To grant the new user additional permissions or make them a superuser, click on their username in the user list, scroll down to the “Permissions” section, and configure their permissions accordingly. Save your changes.
+
+## Creating and Querying a Collection
+
+**WARNING - If you're using OpenAI as your LLM engine, any Collection interaction will use API credits / cost money. If you're using your own OpenAI API key, you've also accepted their terms of service which may not be suitable for your use-case. Please do your own diligence.**
+
+To access the question-answering interface, bring up the fullstack, and go to `http://localhost:3000`
+
+https://user-images.githubusercontent.com/5049984/233236432-aa4980b6-a510-42f3-887a-81485c9644e6.mp4
+
+# Development Environment
 
 If you want to contribute to Delphic or roll your own version, you'll want to ensure you setup the development environment.
 
-#### Backend Setup
+## Backend Setup
 
 On the backend, you'll need to have a working python environment to run the pre-commit formatting checks. You can use
 your system python interpreter, but we recommend using pyenv and creating a virtual env based off of Python>=3.10.
 
-##### Pre-Commit Setup
+### Pre-Commit Setup
 
 Then, in the root of your local repo, run these commands:
 
@@ -116,7 +134,7 @@ pre-commit install
 
 Now, when you stage your commits, ou ar code formatting and style checks will run automatically.
 
-##### Running Tests
+### Running Tests
 
 We have a basic test suite in `./tests`. You can run the tests by typing:
 
@@ -124,34 +142,29 @@ We have a basic test suite in `./tests`. You can run the tests by typing:
 sudo docker-compose -f local.yml run django python manage.py test
 ```
 
-#### Frontend Setup
+## Frontend Setup
 
 On the frontend, we're using node v18.15.0. We assume you're using nvm. We don't have any frontend tests yet (sorry).
-You'll use want to cd into the frontend directory (`cd frontend`) and type `nvm use` to activate the appropriate node
-version. Then you can type `yarn install` and finally `yarn run start` to get started.
 
-## Using the Application
+### Setup and Launch Node Development Server
 
-### Warning / Disclaimer
-
-At the moment, any user who is logged in will have full permissions. We plan to implement the more precise, roles-based access control module we developed for [OpenContracts](https://github.com/JSv4/OpenContracts), but, for now
-be aware that anyone with any type of login credentials can create and delete collections. **Creating collections uses OpenAI credits / costs money**.
-
-If you want to create a super user, you can follow the typical django command (from the repo root in your local filesystem):
+Cd into the frontend directory, install your frontend dependencies and start a development server
+(**Note, we assume you have nvm installed. If you don't install it now**):
 
 ```commandline
-sudo docker-compose -f local.yml run django python manage.py createsuperuser
+cd frontend
+nvm use
+npm install yarn
+yarn install
 ```
 
-Once you have a super user, you can sign-in at `http://localhost:8000/admin`, and, from there, you can create additional users. If you make someone a superuser, they can create new users, delete users and basically do anything they want. See Django's user admin guide [here]().
+Typing `yarn start` will bring up your frontend development server at `http://localhost:3000`. You still need
+to launch the backend in order for it to work properly.
 
+### Run Backend Compose Stack Without `fullstack` profile flag
 
-### Interacting with a Collection
+Launch the backend without the fullstack flag:
 
-**WARNING - If you're using OpenAI as your LLM engine, any Collection interaction will use API credits / cost money. If you're using your own OpenAI API key, you've also accepted their terms of service which may not be suitable for your use-case. Please do your own diligence.**
-
-https://user-images.githubusercontent.com/5049984/233236432-aa4980b6-a510-42f3-887a-81485c9644e6.mp4
-
-### Creating a Collection
-
-**TODO - add gif**
+```commandline
+sudo docker-compose -f local.yml up
+```
