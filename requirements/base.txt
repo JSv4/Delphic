@@ -7,7 +7,7 @@ hiredis==2.2.2  # https://github.com/redis/hiredis-py
 celery==5.2.7  # pyup: < 6.0  # https://github.com/celery/celery
 django-celery-beat==2.5.0  # https://github.com/celery/django-celery-beat
 flower==1.2.0  # https://github.com/mher/flower
-uvicorn[standard]==0.21.1  # https://github.com/encode/uvicorn
+uvicorn[standard]==0.22.0  # https://github.com/encode/uvicorn
 hupper
 
 # Django
