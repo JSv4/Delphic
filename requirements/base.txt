@@ -32,6 +32,6 @@ channels_redis
 
 # NLP-Related
 # ------------------------------------------------------------------------------
-llama_index==0.5.25  # https://github.com/jerryjliu/llama_index
+llama_index==0.6.1  # https://github.com/jerryjliu/llama_index
 PyPDF2==3.*  # https://pypdf2.readthedocs.io/en/latest/
 docx2txt==0.8
