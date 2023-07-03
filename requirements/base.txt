@@ -12,7 +12,7 @@ hupper
 
 # Django
 # ------------------------------------------------------------------------------
-django==4.1.8  # pyup: < 4.2  # https://www.djangoproject.com/
+django==4.2.3  # pyup: < 4.2  # https://www.djangoproject.com/
 django-environ==0.10.0  # https://github.com/joke2k/django-environ
 django-model-utils==4.3.1  # https://github.com/jazzband/django-model-utils
 django-redis==5.2.0  # https://github.com/jazzband/django-redis
