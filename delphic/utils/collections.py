@@ -1,10 +1,11 @@
+import json
 import logging
 import textwrap
 from pathlib import Path
 
 from django.conf import settings
-from langchain import OpenAI
-from llama_index import GPTSimpleVectorIndex, LLMPredictor, ServiceContext
+from llama_index import StorageContext, load_index_from_storage
+from llama_index.indices.base import BaseIndex
 
 from delphic.indexes.models import Collection
 
@@ -27,7 +28,7 @@ def format_source(source):
     return formatted_source
 
 
-async def load_collection_model(collection_id: str | int) -> GPTSimpleVectorIndex:
+async def load_collection_model(collection_id: str | int) -> "BaseIndex":
     """
     Load the Collection model from cache or the database, and return the index.
 
@@ -35,14 +36,14 @@ async def load_collection_model(collection_id: str | int) -> GPTSimpleVectorInde
         collection_id (Union[str, int]): The ID of the Collection model instance.
 
     Returns:
-        GPTSimpleVectorIndex: The loaded index.
+        VectorStoreIndex: The loaded index.
 
     This function performs the following steps:
     1. Retrieve the Collection object with the given collection_id.
     2. Check if a JSON file with the name '/cache/model_{collection_id}.json' exists.
-    3. If the JSON file doesn't exist, load the JSON from the Collection.model FileField and save it to
+    3. If the JSON file doesn't exist, load the JSON from the `Collection.model` FileField and save it to
        '/cache/model_{collection_id}.json'.
-    4. Call GPTSimpleVectorIndex.load_from_disk with the cache_file_path.
+    4. Call VectorStoreIndex.load_from_disk with the cache_file_path.
     """
     # Retrieve the Collection object
     collection = await Collection.objects.aget(id=collection_id)
@@ -61,21 +62,12 @@ async def load_collection_model(collection_id: str | int) -> GPTSimpleVectorInde
                 with cache_file_path.open("w+", encoding="utf-8") as cache_file:
                     cache_file.write(model_file.read().decode("utf-8"))
 
-        # define LLM
-        logger.info(
-            f"load_collection_model() - Setup service context with tokens {settings.MAX_TOKENS} and "
-            f"model {settings.MODEL_NAME}"
-        )
-        llm_predictor = LLMPredictor(
-            llm=OpenAI(temperature=0, model_name="text-davinci-003", max_tokens=512)
-        )
-        service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
-
-        # Call GPTSimpleVectorIndex.load_from_disk
+        # Call VectorStoreIndex.load_from_disk
         logger.info("load_collection_model() - Load llama index")
-        index = GPTSimpleVectorIndex.load_from_disk(
-            cache_file_path, service_context=service_context
-        )
+        with cache_file_path.open("r") as cache_file:
+            storage_context = StorageContext.from_dict(json.load(cache_file))
+        index = load_index_from_storage(storage_context)
+
         logger.info(
             "load_collection_model() - Llamaindex loaded and ready for query..."
         )
