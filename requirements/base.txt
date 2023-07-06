@@ -19,11 +19,11 @@ django-redis==5.2.0  # https://github.com/jazzband/django-redis
 
 # API-Related
 # ------------------------------------------------------------------------------
-django-ninja==0.21.0  # https://github.com/vitalik/django-ninja
+django-ninja==0.22.2  # https://github.com/vitalik/django-ninja
 djangorestframework==3.14.0  # https://github.com/encode/django-rest-framework
 djangorestframework-api-key==2.*  # https://github.com/florimondmanca/djangorestframework-api-key
 django-ninja-jwt==5.2.5  # https://github.com/eadwinCode/django-ninja-jwt
-django-ninja-extra
+django-ninja-extra==0.19.1
 django-cors-headers==3.14.0
 # Websockets
 # ------------------------------------------------------------------------------
