@@ -15,5 +15,7 @@ class NinjaApiKeyAuth(AsyncAPIKeyHeader):
         try:
             # Use the asynchronous ORM to get the API key
             return await sync_to_async(APIKey.objects.get_from_key)(key)
+        except APIKey.DoesNotExist:
+            pass
         except Exception as e:
             logger.warning(f"NinjaApiKeyAuth: invalid key: {type(e)} {e}")
