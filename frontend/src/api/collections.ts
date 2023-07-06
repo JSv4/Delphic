@@ -25,7 +25,7 @@ export const createCollection = async (
 
   const headers: Record<string, string> = {
     "Content-Type": "multipart/form-data",
-    Authorization: authToken,
+    "Authorization": `Bearer ${authToken}`,
   };
 
   return axios.post<CollectionModelSchema>(
@@ -40,7 +40,7 @@ export const queryCollection = async (
   authToken: string
 ): Promise<AxiosResponse<CollectionQueryOutput>> => {
   const headers: Record<string, string> = {
-    Authorization: authToken,
+    "Authorization": `Bearer ${authToken}`,
   };
 
   return axios.post<CollectionQueryOutput>(
@@ -57,7 +57,7 @@ export const getMyCollections = async (
     REACT_APP_API_ROOT_URL + "/api/collections/available",
     {
       headers: {
-        Authorization: authToken,
+        "Authorization": `Bearer ${authToken}`,
       },
     }
   );
@@ -85,7 +85,7 @@ export const addFileToCollection = async (
       {
         headers: {
           "Content-Type": "multipart/form-data",
-          Authorization: authToken,
+          "Authorization": `Bearer ${authToken}`,
         },
       }
     );

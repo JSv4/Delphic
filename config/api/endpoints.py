@@ -1,11 +1,16 @@
+import logging
+
 from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.core.files.base import ContentFile
+from django.db.models import Q
 from django.http import HttpRequest
 from ninja import File, Form, Router
 from ninja.files import UploadedFile
 from ninja_extra import NinjaExtraAPI
+from ninja_jwt.authentication import AsyncJWTAuth
 from ninja_jwt.controller import NinjaJWTDefaultController
+from rest_framework_api_key.models import APIKey
 
 from delphic.indexes.models import Collection, Document
 from delphic.tasks import create_index
@@ -19,18 +24,21 @@ from .ninja_types import (
     CollectionStatusEnum,
 )
 
+logger = logging.getLogger(__name__)
+
 collections_router = Router()
 
 api = NinjaExtraAPI(
-    title="GREMLIN Engine NLP Microservice",
-    description="Chat-All-The-Docs is a LLM document model orchestration engine that makes it easy to vectorize a "
-    "collection of documents and then build and serve discrete Llama-Index models for each collection to "
-    "create bespoke, highly-targed chattable knowledge bases.",
+    title="Delphic LLM Microservice",
+    description="""Delphic is a LLM document model orchestration engine that makes it
+    easy to vectorize a collection of documents and then build and serve discrete
+    Llama-Index models for each collection to create bespoke, highly-targed chattable
+    knowledge bases.""",
     version="b0.9.0",
-    auth=None if settings.OPEN_ACCESS_MODE else NinjaApiKeyAuth(),
 )
 
-api.add_router("/collections", collections_router)
+auth = None if settings.OPEN_ACCESS_MODE else [NinjaApiKeyAuth(), AsyncJWTAuth()]
+api.add_router("/collections", collections_router, auth=auth)
 api.register_controllers(NinjaJWTDefaultController)
 
 
@@ -52,9 +60,11 @@ async def create_collection(
     description: str = Form(...),
     files: list[UploadedFile] = File(...),
 ):
-    key = None if getattr(request, "auth", None) is None else request.auth
-    if key is not None:
-        key = await key
+    key = None
+
+    if api_key := getattr(request, "auth", None):
+        if isinstance(key, APIKey):
+            key = api_key
 
     collection_instance = Collection(
         api_key=key,
@@ -107,15 +117,17 @@ def query_collection_view(request: HttpRequest, query_input: CollectionQueryInpu
 @collections_router.get(
     "/available",
     response=list[CollectionModelSchema],
-    summary="Get a list of all of the collections " "created with my api_key",
+    summary="Get a list of all of the collections created with my api_key",
 )
 async def get_my_collections_view(request: HttpRequest):
-    key = None if getattr(request, "auth", None) is None else request.auth
-    if key is not None:
-        key = await key
-    print(f"API KEY: {key}")
+    collections_filt = Q(api_key=None)
 
-    collections = Collection.objects.filter(api_key=key)
+    if key := getattr(request, "auth", None):
+        if isinstance(key, APIKey):
+            logger.debug(f"API key: {key.prefix}")
+            collections_filt |= Q(api_key=key)
+
+    collections = Collection.objects.filter(collections_filt)
 
     return [
         {
