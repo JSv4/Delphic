@@ -1,3 +1,5 @@
+# Archive Notice: This is a great proof of concept for how to build a django-powered app with streaming responses from a large language model. I don't have the time to maintain it and it needs a number of upgrades to be production-ready. Let me know if you're interested in taking over maintenance. 
+
 # Delphic
 
 ![](./docs/images/Delphic_Header.png)
