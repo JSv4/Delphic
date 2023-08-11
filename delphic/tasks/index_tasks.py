@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import tempfile
@@ -8,7 +9,7 @@ from django.conf import settings
 from django.core.files import File
 from langchain import OpenAI
 from llama_index import (
-    GPTSimpleVectorIndex,
+    GPTVectorStoreIndex,
     LLMPredictor,
     ServiceContext,
     download_loader,
@@ -23,11 +24,11 @@ logger = logging.getLogger(__name__)
 @celery_app.task
 def create_index(collection_id):
     """
-    Celery task to create a GPTSimpleVectorIndex for a given Collection object.
+    Celery task to create a GPTVectorStoreIndex for a given Collection object.
 
     This task takes the ID of a Collection object, retrieves it from the
     database along with its related documents, and saves the document files
-    to a temporary directory. Then, it creates a GPTSimpleVectorIndex using
+    to a temporary directory. Then, it creates a GPTVectorStoreIndex using
     the provided code and saves the index to the Comparison.model FileField.
 
     Args:
@@ -60,15 +61,18 @@ def create_index(collection_id):
                     with temp_file_path.open("wb") as f:
                         f.write(file_data)
 
-                # Create the GPTSimpleVectorIndex
-                SimpleDirectoryReader = download_loader("SimpleDirectoryReader")
+                # Create the GPTVectorStoreIndex
+                try:
+                    SimpleDirectoryReader = download_loader("SimpleDirectoryReader")
+                except Exception as e:
+                    logger.error(f"Error downloading SimpleDirectoryReader: {e}")
+                    raise
+
                 loader = SimpleDirectoryReader(
                     tempdir_path, recursive=True, exclude_hidden=False
                 )
                 documents = loader.load_data()
-                # index = GPTSimpleVectorIndex(documents)
 
-                # documents = SimpleDirectoryReader(str(tempdir_path)).load_data()
                 llm_predictor = LLMPredictor(
                     llm=OpenAI(
                         temperature=0,
@@ -81,11 +85,11 @@ def create_index(collection_id):
                 )
 
                 # build index
-                index = GPTSimpleVectorIndex.from_documents(
+                index = GPTVectorStoreIndex.from_documents(
                     documents, service_context=service_context
                 )
 
-                index_str = index.save_to_string()
+                index_str = json.dumps(index.storage_context.to_dict())
 
                 # Save the index_str to the Comparison.model FileField
                 with tempfile.NamedTemporaryFile(delete=False) as f:
@@ -105,7 +109,9 @@ def create_index(collection_id):
             return True
 
         except Exception as e:
-            logger.error(f"Error creating index for collection {collection_id}: {e}")
+            logger.error(
+                f"{type(e).__name__} creating index for collection {collection_id}: {e}"
+            )
             collection.status = CollectionStatus.ERROR
             collection.save()
 
