@@ -162,29 +162,6 @@ typings/
 # Local History for Visual Studio Code
 .history/
 
-
-# Provided default Pycharm Run/Debug Configurations should be tracked by git
-# In case of local modifications made by Pycharm, use update-index command
-# for each changed file, like this:
-# git update-index --assume-unchanged .idea/chat_all_the_docs.iml
-### JetBrains template
-# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and Webstorm
-# Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
-
-# User-specific stuff:
-.idea/**/workspace.xml
-.idea/**/tasks.xml
-.idea/dictionaries
-
-# Sensitive or high-churn files:
-.idea/**/dataSources/
-.idea/**/dataSources.ids
-.idea/**/dataSources.xml
-.idea/**/dataSources.local.xml
-.idea/**/sqlDataSources.xml
-.idea/**/dynamic.xml
-.idea/**/uiDesigner.xml
-
 # Gradle:
 .idea/**/gradle.xml
 .idea/**/libraries
@@ -338,3 +315,14 @@ delphic/media/*
 
 ### Models for Question Answering
 cache/*
+
+# https://github.com/cookiecutter/cookiecutter-django/blob/de8759fdbd45ac288b97e050073a5d09f50029db/.gitignore#L211
+# Even though the project might be opened and edited
+# in any of the JetBrains IDEs, it makes no sense whatsoever
+# to 'run' anything within it since any particular cookiecutter
+# is declarative by nature.
+.idea/
+
+### Local configuration files
+/.envs/.local
+/frontend/.frontend
