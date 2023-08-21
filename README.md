@@ -11,95 +11,120 @@ A simple framework to use LlamaIndex to build and deploy LLM agents that can be 
 
 License: MIT
 
-## Getting Setup
-
-### Word of Caution / Note
+## Caution/note: OpenAI API
 
 The initial release of Delphic is based *solely* on OpenAI's API. We fully plan to support other large language models (LLMs), whether self-hosted or powered by third-party API. At the moment, however, as of April 2023, Open AI's API remains perhaps the most capable and easiest to deploy. Since this framework is based on LlamaIndex and is fully compatible with Langchain, it will be pretty easy to use other LLMs. **At the moment, however, your text WILL be processed with OpenAI, even if you're self-hosting this tool. If OpenAI's terms of service present a problem for you, we leave that to you to resolve. WE ARE NOT RESPONSIBLE FOR ANY ISSUES ARRISING FROM YOUR USE OF THIS TOOL AND OPENAI API.**
 
-### Getting Started Locally
+## Running the application
 
-#### Just Run the Application
+### Local deployment
 
 The fastest way to get up and running is to clone this repo and then deploy the application locally.
 
-You will need Docker and Docker Compose to follow these instructions. DigitalOcean, besides being an excellent cloud host, has some of the easiest-to-follow instructions on setting these up. Please check them out here or go to the Docker official instructions.
+1. Prerequisites: install Docker and Docker Compose.
 
-1. First, clone the repo:
+   Please see the [Docker Compose official instructions](https://docs.docker.com/compose/install/).
 
-```commandline
-git clone
-```
+   DigitalOcean (besides being an excellent cloud host) also provides easy-to-follow instructions for installing Docker and Docker Compose on Linux.
+   See [How To Install Docker Compose](https://www.digitalocean.com/community/tutorial-collections/how-to-install-docker-compose).
 
-2. Then, change into the directory:
+2. Clone the repo:
 
-```commandline
-cd delphic
-```
+   ```commandline
+   git clone https://github.com/JSv4/Delphic.git delphic
+   ```
 
-3. **Don't forget to copy the sample env file to ./.envs/.local/ (you may need to be a super user / use sudo depending on your desired location)**
+3. Change into the repository directory:
 
-```commandline
-mkdir -p ./.envs/.local/
-cp -a ./docs/sample_envs/local/.frontend ./frontend
-cp -a ./docs/sample_envs/local/.django ./.envs/.local
-cp -a ./docs/sample_envs/local/.postgres ./.envs/.local
-```
+   ```commandline
+   cd delphic
+   ```
 
-4. And, next update your .django configuration (you'll probably want to edit `.postgres` as well to give your database user a unique password)
-   to include your OPENAI API KEY
+4. Copy the sample env files to `.envs/.local/` and `frontend/`:
 
-5. Then, build the docker images:
+   ```shell
+   # in the repository root, i.e. the directory you just cloned
+   # which contains this README.md file
+   mkdir -p .envs/.local
+   cp docs/sample_envs/local/.django .envs/.local
+   cp docs/sample_envs/local/.postgres .envs/.local
+   cp docs/sample_envs/local/.frontend frontend
+   ```
 
-```commandline
-sudo docker-compose --profile fullstack -f local.yml build
-```
+5. Update the sample .env files to set your OpenAI key and optionally the PostgreSQL username and password:
+   ```shell
+   # .envs/.local/.django
+   OPENAI_API_KEY="sk-..."
+   ```
 
-6. Finally, to launch the application, type:
+   ```shell
+   # .envs/.local/.postgres
+   POSTGRES_USER=[delphic or any random string, max 31 chars]
+   POSTGRES_PASSWORD=[any random string, for compat max 99 chars avoiding special characters]
+   ```
 
-```commandline
-sudo docker-compose --profile fullstack -f local.yml up
-```
+6. Build the Docker images:
 
-Go to `localhost:3000` to see the frontend.
+   ```commandline
+   docker-compose --profile fullstack -f local.yml build
+   ```
 
-#### I Want to Develop / Modify the Frontend
+   You may need to run `sudo docker-compose ...` rather than `docker-compose`. Try it without `sudo` first.
+   Reviewing the [Docker Engine post-install steps](https://docs.docker.com/engine/install/linux-postinstall/) may also fix the problem.
 
-If you want to actively develop the frontend, we suggest you **NOT** use the `--profile=fullstack` flag as every change will require a full container rebuild.
-Instead, see the [Development Environment](#development-environment)  instead of step #5 above,
+7. Launch the application:
 
-### Production Deploy
+   ```commandline
+   docker-compose --profile fullstack -f local.yml up
+   ```
+
+8. Go to http://localhost:3000 to see the frontend.
+
+### Local deployment for development
+
+If you change the backend (Python) code in your repository, Django and Celery will automatically reload the changes.
+
+To modify the frontend (React) code, remove the `--profile=fullstack` flag at step 7 above,
+and see the [Development Environment](#development-environment) instructions
+to run the frontend in a separate terminal.
+
+If you use the `fullstack` profile for frontend development, frontend changes will require
+a manual rebuild/restart of the `frontend` service for every change.
+
+### Production deployment
 
 This assumes you want to make the application available to the internet at some kind of fully qualified domain like delphic.opensource.legal. In order to do this, you need to update a couple configurations.
 
 **TODO - insert documentation**
 
-# Using the Application
-
-## Setup Users
-
-In order to actually use the application (at the moment, we intend to make it possible to share certain models with unauthenticated users), you need a login. You can use either a superuser or non-superuser. In either case, someone needs to first create a superuser using the console:
-
-Why set up a Django superuser? A Django superuser has all the permissions in the application and can manage all aspects of the system, including creating, modifying, and deleting users, collections, and other data. Setting up a superuser allows you to fully control and manage the application.
+## Configuring users
 
 ### Warning / Disclaimer
 
-**At the moment, any user who is logged in will have full permissions. We plan to implement the more precise, roles-based access control module we developed for [OpenContracts](https://github.com/JSv4/OpenContracts), but, for now
-be aware that anyone with any type of login credentials can create and delete collections. **Creating collections uses OpenAI credits / costs money**
+At the moment, any user who is logged in will have full permissions.
+Anyone with any type of login credentials can create and delete collections.
+**Creating collections uses OpenAI credits / costs money.**
 
-### First, Setup a Django superuser:
+We plan to implement the more precise, roles-based access control module we developed for
+[OpenContracts](https://github.com/JSv4/OpenContracts).
+
+We plan to allow sharing of specific models with unauthenticated users.
+
+### Set up a Django superuser
+
+The Django superuser has full permissions in the application
+and can manage all aspects of the system, including creating, modifying, and deleting users, collections,
+and other data. Setting up a superuser allows you to control and manage the application.
 
 1. Run the following command to create a superuser:
 
-```
-sudo docker-compose -f local.yml run django python manage.py createsuperuser
-```
+   ```shell
+   docker-compose -f local.yml run django python manage.py createsuperuser
+   ```
 
-2. You will be prompted to provide a username, email address, and password for the superuser. Enter the required information.
+2. Enter a username, email address, and password for the superuser as prompted.
 
-### Second (if desired), Setup Additional Users
-
-Start your Delphic application locally following the deployment instructions.
+### Set up additional users (optional)
 
 1. Visit the Django admin interface by navigating to http://localhost:8000/admin in your browser.
 2. Log in with the superuser credentials you created earlier.
@@ -118,55 +143,64 @@ https://user-images.githubusercontent.com/5049984/233236432-aa4980b6-a510-42f3-8
 
 # Development Environment
 
-If you want to contribute to Delphic or roll your own version, you'll want to ensure you setup the development environment.
+If you want to contribute to Delphic or roll your own version, set up the development environment.
 
-## Backend Setup
+## Pre-Commit
 
-On the backend, you'll need to have a working python environment to run the pre-commit formatting checks. You can use
-your system python interpreter, but we recommend using pyenv and creating a virtual env based off of Python>=3.10.
+You need a working Python interpreter in the same environment as `git` to run the
+[pre-commit](https://pre-commit.com/) formatting checks.
 
-### Pre-Commit Setup
+1. Install `pre-commit` using the [pre-commit installation instructions](https://pre-commit.com/#installation).
+You can use your system package manager, `pip` with the system Python interpreter, or `pip` with a virtualenv.
 
-Then, in the root of your local repo, run these commands:
+2. In the root of your local repo, run:
 
-```
-pip install -r ./requirements/local.txt
-pre-commit install
-```
+   ```
+   pre-commit install
+   ```
 
-Now, when you stage your commits, ou ar code formatting and style checks will run automatically.
+   `pre-commit` will install the dependencies specified in `.pre-commit-config.yaml`.
+   You don't need to install Delphic's development requirements in the pre-commit virtualenv.
 
-### Running Tests
+When you commit changes to your repository, the project's formatting and style checks will run automatically.
+
+## Running Tests
 
 We have a basic test suite in `./tests`. You can run the tests by typing:
 
 ```commandline
-sudo docker-compose -f local.yml run django python manage.py test
+docker-compose -f local.yml run django python manage.py test
 ```
 
 ## Frontend Setup
 
 On the frontend, we're using node v18.15.0. We assume you're using nvm. We don't have any frontend tests yet (sorry).
 
-### Setup and Launch Node Development Server
+1. Prerequisites: [install nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
-Cd into the frontend directory, install your frontend dependencies and start a development server
-(**Note, we assume you have nvm installed. If you don't install it now**):
+2. Install frontend dependencies
 
-```commandline
-cd frontend
-nvm use
-npm install yarn
-yarn install
-```
+   ```commandline
+   cd frontend
+   nvm use
+   npm install yarn
+   yarn install
+   ```
 
-Typing `yarn start` will bring up your frontend development server at `http://localhost:3000`. You still need
-to launch the backend in order for it to work properly.
+3. Start the development frontend server
 
-### Run Backend Compose Stack Without `fullstack` profile flag
+    ```shell
+    # in the frontend directory where you see package.json
+    yarn start
+    ```
 
-Launch the backend without the fullstack flag:
+   The frontend development server is now available at http://localhost:3000.
 
-```commandline
-sudo docker-compose -f local.yml up
-```
+4. Launch the backend without the `--profile=fullstack` flag.
+
+   ```shell
+   # in the repository root where you see this README.md file and local.yml
+   docker-compose -f local.yml up
+   ```
+
+   This will launch the backend services, but not the `frontend` service.
