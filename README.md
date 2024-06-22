@@ -1,4 +1,6 @@
-# Archive Notice: This is a great proof of concept for how to build a django-powered app with streaming responses from a large language model. I don't have the time to maintain it and it needs a number of upgrades to be production-ready. Let me know if you're interested in taking over maintenance. 
+# Archive Notice: We recommend you check out [OpenContracts](https://github.com/JSv4/OpenContracts) for a much more modern version of this application that integrates that 0.10* branch of LlamaIndex with Django + pgvector to use Postgres as the vector store.   This remains a great proof of concept for how to build a django-powered app with streaming responses from a large language model, but it is not being maintained. 
+
+I don't have the time to maintain it and it needs a number of upgrades to be production-ready. Let me know if you're interested in taking over maintenance. 
 
 # Delphic
 
